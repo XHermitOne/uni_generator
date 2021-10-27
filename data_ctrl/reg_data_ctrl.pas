@@ -42,9 +42,14 @@ implementation
 uses
   log,
   // Компоненты - источники данных
-  opc_da_node, opc_hda_node, opc_wt_hda_node, db_mysql_node, alarm_check_node,
+  opc_da_node,
+  //opc_hda_node,
+  //opc_wt_hda_node,
+  //db_mysql_node,
+  //alarm_check_node,
   // Компоненты - приемники данных
-  postgresql_tab_wide;
+  //postgresql_tab_wide;
+  text_file_dest;
 
 {
 Функция создания объекта контроллера данных по имени типа.
@@ -60,31 +65,36 @@ begin
     { Создание и инициализация OPC DA сервера }
     Result := opc_da_node.TICOPCDANode.Create;
   end
-  else if sTypeName = opc_hda_node.OPC_HDA_NODE_TYPE then
+  else if sTypeName = text_file_dest.TEXT_FILE_TYPE then
   begin
-    { Создание и инициализация OPC HDA сервера }
-    Result := opc_hda_node.TICOPCHDANode.Create;
+    { Создание и инициализация генератора тектового файла }
+    Result := text_file_dest.TICTextFileDest.Create;
   end
-  else if sTypeName = opc_wt_hda_node.OPC_WT_HDA_NODE_TYPE then
-  begin
-    { Создание и инициализация OPC HDA сервера }
-    Result := opc_wt_hda_node.TICWtOPCHDANode.Create;
-  end
-  else if sTypeName = db_mysql_node.DB_MYSQL_NODE_TYPE then
-  begin
-    { Создание и инициализация MySQL БД сервера }
-    Result := db_mysql_node.TICMySQLDBNode.Create;
-  end
-  else if sTypeName = alarm_check_node.ALARM_CHECK_NODE_TYPE then
-  begin
-    { Создание и инициализация узла проверки аварии }
-    Result := alarm_check_node.TICAlarmCheckNode.Create;
-  end
-  else if sTypeName = postgresql_tab_wide.POSTGRESQL_TAB_WIDE_TYPE then
-  begin
-    { Создание и инициализация журнала таблицы PostgreSQL широкого формата }
-    Result := postgresql_tab_wide.TICPostgreSQLTableWide.Create;
-  end
+  //else if sTypeName = opc_hda_node.OPC_HDA_NODE_TYPE then
+  //begin
+  //  { Создание и инициализация OPC HDA сервера }
+  //  Result := opc_hda_node.TICOPCHDANode.Create;
+  //end
+  //else if sTypeName = opc_wt_hda_node.OPC_WT_HDA_NODE_TYPE then
+  //begin
+  //  { Создание и инициализация OPC HDA сервера }
+  //  Result := opc_wt_hda_node.TICWtOPCHDANode.Create;
+  //end
+  //else if sTypeName = db_mysql_node.DB_MYSQL_NODE_TYPE then
+  //begin
+  //  { Создание и инициализация MySQL БД сервера }
+  //  Result := db_mysql_node.TICMySQLDBNode.Create;
+  //end
+  //else if sTypeName = alarm_check_node.ALARM_CHECK_NODE_TYPE then
+  //begin
+  //  { Создание и инициализация узла проверки аварии }
+  //  Result := alarm_check_node.TICAlarmCheckNode.Create;
+  //end
+  //else if sTypeName = postgresql_tab_wide.POSTGRESQL_TAB_WIDE_TYPE then
+  //begin
+  //  { Создание и инициализация журнала таблицы PostgreSQL широкого формата }
+  //  Result := postgresql_tab_wide.TICPostgreSQLTableWide.Create;
+  //end
   else
   begin
     log.WarningMsgFmt('Не поддерживаемый тип объекта контроллера данных <%s>', [sTypeName]);
@@ -117,12 +127,12 @@ begin
         Result.SetParent(oParent);
     Result.SetPropertiesArray(aArgs);
     Exit;
-  end
-  else if sTypeName = 'POSTGRESQL_TAB_WIDE' then
-  begin
-    { Создание и инициализация журнала таблицы PostgreSQL широкого формата }
-    Result := nil;
-    Exit;
+  //end
+  //else if sTypeName = 'POSTGRESQL_TAB_WIDE' then
+  //begin
+  //  { Создание и инициализация журнала таблицы PostgreSQL широкого формата }
+  //  Result := nil;
+  //  Exit;
   end;
 
   log.WarningMsgFmt('Не поддерживаемый тип объекта контроллера данных <%s>', [sTypeName]);

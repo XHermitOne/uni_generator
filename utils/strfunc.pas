@@ -1,7 +1,7 @@
 {
 Функции работы со строками
 
-Версия: 0.0.6.1
+Версия: 0.0.7.1
 }
 unit strfunc;
 
@@ -15,6 +15,7 @@ uses
     {$ENDIF}
     Classes, SysUtils, StrUtils,
     exttypes,
+    dictionary,
     LConvEncoding;
 
 {
@@ -158,7 +159,19 @@ function ReplaceEnd(sTxt: AnsiString; sSrcStr: AnsiString; sDstStr: AnsiString =
 }
 function IsEmptyStr(sTxt: AnsiString): Boolean;
 
+{
+Запуск генерации строки по контексту.
+@param AContext: Контекст.
+@param sTemplate: Строка-шаблон.
+@return: Сгенерированная строка.
+}
+function Generate(AContext: TStrDictionary; sTemplate: AnsiString): AnsiString;
+
+
 implementation
+
+uses
+  JTemplate;
 
 {
 Разбивает строку с разделителями на части
@@ -443,6 +456,43 @@ end;
 function IsEmptyStr(sTxt: AnsiString): Boolean;
 begin
   Result := Length(sTxt) = 0;
+end;
+
+{
+Запуск генерации строки по контексту.
+@param AContext: Контекст.
+@param sTemplate: Строка-шаблон.
+@return: Сгенерированная строка.
+}
+function Generate(AContext: TStrDictionary; sTemplate: AnsiString): AnsiString;
+var
+  string_stream: TStringStream;
+  template_stream: JTemplate.TJTemplateStream;
+  i: Integer;
+  name, value: AnsiString;
+
+begin
+  Result := '';
+  template_stream := JTemplate.TJTemplateStream.Create;
+  string_stream := TStringStream.Create(sTemplate);
+
+  try
+    template_stream.LoadFromStream(string_stream);
+
+    for i := 0 to AContext.Count - 1 do
+    begin
+      name := AContext.GetKey(i);
+      value := AContext.GetStrValue(name);
+      value := strfunc.ToUTF8(value);
+      template_stream.Parser.Fields.Add(name, value);
+    end;
+
+    template_stream.Parser.Replace;
+    Result := template_stream.Parser.Content;
+  finally
+    string_stream.Destroy;
+    template_stream.Free;
+  end;
 end;
 
 end.

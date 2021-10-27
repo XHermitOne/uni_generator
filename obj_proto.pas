@@ -10,7 +10,8 @@ unit obj_proto;
 interface
 
 uses
-    Classes, SysUtils, dictionary;
+    Classes, SysUtils,
+    dictionary;
 
 const
   DATETIME_TXT_FMT: AnsiString = 'yyyy-mm-dd hh:nn:ss';
@@ -42,7 +43,7 @@ type
     Некоторые источники данных могут предоставлять значения только порционно,
     кадрами-буферами. Для таких случаев и используется этот буфер
     }
-    FTimeStateBuffer: TStrDictionary;
+    // FTimeStateBuffer: TStrDictionary;
 
     { Свойства контроллера данных. Прописаны в INI файле }
     FProperties: TStrDictionary;
@@ -65,7 +66,7 @@ type
     Функция очистки буфера изменения состояния
     @param bAutoFree Автоматическое удаление элементов из памяти
     }
-    function ClearTimeState(bAutoFree: Boolean = True): Boolean;
+    //function ClearTimeState(bAutoFree: Boolean = True): Boolean;
 
     { Получить наименование объекта }
     function GetName(): AnsiString;
@@ -76,6 +77,8 @@ type
     function GetParent(): TObject;
     { Установить родительский объект }
     procedure SetParent(oParent: TObject);
+    { Получить родительский объект }
+    //function GetEngine(): engine.TICEngineProto;
 
     { Получить словарь свойств объекта }
     function GetProperties(): TStrDictionary;
@@ -164,7 +167,7 @@ type
     property Name: AnsiString read GetName write SetName;
     property Properties: TStrDictionary read GetProperties write SetProperties;
     property State: TStrDictionary read FState write FState;
-    property TimeState: TStrDictionary read FTimeStateBuffer write FTimeStateBuffer;
+    // property TimeState: TStrDictionary read FTimeStateBuffer write FTimeStateBuffer;
 
 end;
 
@@ -183,7 +186,7 @@ begin
 
   FReadValues := TStringList.Create;
   FState := TStrDictionary.Create;
-  FTimeStateBuffer := TStrDictionary.Create;
+  //FTimeStateBuffer := TStrDictionary.Create;
 end;
 
 destructor TICObjectProto.Destroy;
@@ -198,11 +201,11 @@ begin
     FState.Destroy;
     FState := nil;
   end;
-  if FTimeStateBuffer <> nil then
-  begin
-    FTimeStateBuffer.Destroy;
-    FTimeStateBuffer := nil;
-  end;
+  //if FTimeStateBuffer <> nil then
+  //begin
+  //  FTimeStateBuffer.Destroy;
+  //  FTimeStateBuffer := nil;
+  //end;
 
   if FProperties <> nil then
   begin
@@ -238,10 +241,10 @@ begin
   Result := FState.ClearContent(bAutoFree);
 end;
 
-function TICObjectProto.ClearTimeState(bAutoFree: Boolean): Boolean;
-begin
-  Result := FTimeStateBuffer.ClearContent(bAutoFree);
-end;
+//function TICObjectProto.ClearTimeState(bAutoFree: Boolean): Boolean;
+//begin
+//  Result := FTimeStateBuffer.ClearContent(bAutoFree);
+//end;
 
 
 function TICObjectProto.GetName(): AnsiString;
@@ -263,6 +266,11 @@ procedure TICObjectProto.SetParent(oParent: TObject);
 begin
   FParent := oParent;
 end;
+
+//function TICObjectProto.GetEngine(): TICEngineProto;
+//begin
+//  Result := FParent As TICEngineProto;
+//end;
 
 function TICObjectProto.GetProperties(): TStrDictionary;
 begin

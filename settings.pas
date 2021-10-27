@@ -1,7 +1,7 @@
 {
 Модуль поддержки настроек программы
 
-Версия: 0.0.3.1
+Версия: 0.0.3.2
 }
 unit settings;
 
@@ -241,17 +241,28 @@ begin
   begin
     // Если запрашиваеммая секция есть в INI файле, то обновить объект секции
     obj_section := FContent.GetByName(sSectionName) As TStrDictionary;
+    if obj_section.IsEmpty then
+      log.WarningMsgFmt('Cекция <%s> пустая', [sSectionName]);
+
     // В секции из INI файла может отсутствовать наименование
     // поэтому добавляем его
-    obj_section.AddStrValue('name', sSectionName);
+    if not obj_section.HasKey('name') then
+      obj_section.AddStrValue('name', sSectionName);
     // DebugMsg(Format('Класс секции <%s>', [obj_section.ClassName]));
     if obj_section <> nil then
-      section.Update(obj_section)
+    begin
+      section.Update(obj_section);
+      //section.PrintKeys;
+    end
     else
       log.WarningMsgFmt('Не определена секция <%s> в настройках', [sSectionName]);
   end
   else
+  begin
     section.AddStrValue('name', sSectionName);
+    log.WarningMsgFmt('Не найдена секция <%s> в настройках среди:', [sSectionName]);
+    FContent.PrintKeys;
+  end;
 
   if not section.HasKey('parent') then
   begin

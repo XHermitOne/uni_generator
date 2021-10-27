@@ -167,7 +167,8 @@ type
 implementation
 
 uses
-  log, memfunc;
+  log;
+  //memfunc;
 
 
 constructor TStrDictionary.Create();
