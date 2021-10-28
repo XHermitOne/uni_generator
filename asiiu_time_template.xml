@@ -22,7 +22,7 @@
         <oref:UL>
         	<oref:INN>@inn</oref:INN>
                 <oref:KPP>@kpp</oref:KPP>
-                <oref:ClientRegId>@fsrar_id</oref:ClientRegId>
+                <oref:ClientRegId>@fsrarid</oref:ClientRegId>
                 <oref:FullName>@full_name</oref:FullName>
                 <oref:ShortName>@short_name</oref:ShortName>
                 <oref:address>

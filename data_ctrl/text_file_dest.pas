@@ -135,9 +135,6 @@ var
   curYear, curMonth, curDay : Word;
   curHour, curMin, curSec, curMilli : Word;
 
-//  values: Array Of String;
-//  time_values: TMemRecordSet;
-//  fields: TStringList;
 begin
   log.InfoMsgFmt('Запись всех внутренних данных. Объект <%s>', [Name]);
 
@@ -166,9 +163,9 @@ begin
     tags.AddStrValue('year_str', FormatDateTime('YYYY', dtTime));
     tags.AddStrValue('month_str', FormatDateTime('MM', dtTime));
     tags.AddStrValue('day_str', FormatDateTime('DD', dtTime));
-    tags.AddStrValue('hour_str', FormatDateTime('hh', dtTime));
-    tags.AddStrValue('minute_str', FormatDateTime('mm', dtTime));
-    tags.AddStrValue('second_str', FormatDateTime('ss', dtTime));
+    tags.AddStrValue('hour_str', FormatDateTime('HH', dtTime));
+    tags.AddStrValue('minute_str', FormatDateTime('NN', dtTime));
+    tags.AddStrValue('second_str', FormatDateTime('SS', dtTime));
     tags.AddStrValue('millisecond_str', IntToStr(curMilli));
 
     tags.AddStrValue('year', IntToStr(curYear));
@@ -249,6 +246,7 @@ begin
       value := AContext.GetStrValue(variable_name);
       value := strfunc.ToUTF8(value);
       template_stream.Parser.Fields.Add(variable_name, value);
+      log.InfoMsgFmt('Добавлена переменная в шаблонизатор <%s : %s>', [variable_name, value]);
     end;
 
     template_stream.Parser.Replace;
