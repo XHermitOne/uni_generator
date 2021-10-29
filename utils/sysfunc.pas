@@ -13,7 +13,9 @@ uses
   {$IFDEF windows}
   Windows,
   {$ENDIF}
-  Classes, SysUtils;
+  Classes,
+  Process,
+  SysUtils;
 
 {$IFDEF linux}
 { some linux-specific code }
@@ -37,7 +39,17 @@ function IsOSWindows(): Boolean;
 { Наименование компьютера }
 function GetNetComputerName(): AnsiString;
 
+{ 
+Запуск комманды ОС 
+}
+procedure ExecuteSystem(Command: AnsiString);
+
 implementation
+
+uses
+  fileutil,
+  log,
+  strfunc;
 
 {
 Тип операционной системы: linux/windows
@@ -75,6 +87,31 @@ begin
   if GetComputerName(buffer, size) then
     Result := buffer;
   {$ENDIF}
+end;
+
+{ 
+Запуск комманды ОС 
+}
+procedure ExecuteSystem(Command: AnsiString);
+var
+  cmd: Array Of String;
+  i: Integer;
+
+begin
+  cmd := strfunc.SplitStr(Command, ' ');
+  with TProcess.Create(nil) do
+  try
+    Executable := fileutil.FindDefaultExecutablePath(cmd[0]);
+    log.DebugMsgFmt('Программа <%s>', [Executable]);
+    for i := 1 to Length(cmd) - 1 do
+    begin
+      Parameters.Add(Trim(cmd[i]));
+      log.DebugMsgFmt('%d. Параметры коммандной строки <%s>', [i, Trim(cmd[i])]);
+    end;
+    Execute;
+  finally
+    Free;
+  end;
 end;
 
 end.

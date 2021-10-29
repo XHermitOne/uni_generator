@@ -25,21 +25,24 @@
       <FormatVersion Value="2"/>
       <Modes Count="0"/>
     </RunParams>
-    <RequiredPackages Count="4">
+    <RequiredPackages Count="5">
       <Item1>
-        <PackageName Value="JTemplateRT"/>
+        <PackageName Value="pascalscript"/>
       </Item1>
       <Item2>
-        <PackageName Value="LCL"/>
+        <PackageName Value="JTemplateRT"/>
       </Item2>
       <Item3>
-        <PackageName Value="LCLBase"/>
+        <PackageName Value="LCL"/>
       </Item3>
       <Item4>
-        <PackageName Value="LazUtils"/>
+        <PackageName Value="LCLBase"/>
       </Item4>
+      <Item5>
+        <PackageName Value="LazUtils"/>
+      </Item5>
     </RequiredPackages>
-    <Units Count="27">
+    <Units Count="28">
       <Unit0>
         <Filename Value="uni_generator.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -148,6 +151,10 @@
         <Filename Value="data_ctrl/text_file_dest.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit26>
+      <Unit27>
+        <Filename Value="utils/execfunc.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit27>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

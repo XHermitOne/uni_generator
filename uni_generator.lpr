@@ -123,7 +123,8 @@ uses
   Classes, SysUtils, CustApp,
   { you can add units after this }
   memfunc,
-  engine, log, settings;
+  execfunc,
+  engine, log, settings, pascalscript;
 
 type
 
@@ -145,9 +146,11 @@ type
 procedure TUniGeneratorApplication.DoRun;
 var
   ErrorMsg: String;
+  s: AnsiString;
+
 begin
   // Чтание параметров коммандной строки
-  ErrorMsg := CheckOptions('hvdls:', 'help version debug log settings:');
+  ErrorMsg := CheckOptions('hvdlts:', 'help version debug log test settings:');
   if ErrorMsg <> '' then
   begin
     ShowException(Exception.Create(ErrorMsg));
@@ -166,6 +169,15 @@ begin
   if HasOption('v', 'version') then
   begin
     WriteVersion;
+    Terminate;
+    Exit;
+  end;
+
+  if HasOption('t', 'test') then
+  begin
+    s := execfunc.ExecutePascalScript('Result := ''Test'';', []);
+    PrintColorTxt(Format('Тест: %s', [s]), CYAN_COLOR_TEXT);
+
     Terminate;
     Exit;
   end;

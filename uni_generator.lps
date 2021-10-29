@@ -3,23 +3,24 @@
   <ProjectSession>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="27">
+    <Units Count="29">
       <Unit0>
         <Filename Value="uni_generator.lpr"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="172"/>
-        <CursorPos X="30" Y="188"/>
-        <UsageCount Value="139"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="165"/>
+        <CursorPos Y="178"/>
+        <UsageCount Value="161"/>
+        <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="utils/dictionary.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="172"/>
         <CursorPos Y="188"/>
-        <UsageCount Value="139"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="161"/>
       </Unit1>
       <Unit2>
         <Filename Value="utils/dtfunc.pas"/>
@@ -28,40 +29,37 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="139"/>
+        <UsageCount Value="161"/>
       </Unit2>
       <Unit3>
         <Filename Value="utils/exttypes.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="8"/>
-        <UsageCount Value="139"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <UsageCount Value="161"/>
       </Unit3>
       <Unit4>
         <Filename Value="utils/filefunc.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="19"/>
         <CursorPos X="10" Y="36"/>
-        <UsageCount Value="139"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="161"/>
       </Unit4>
       <Unit5>
         <Filename Value="utils/inifunc.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="103"/>
         <CursorPos X="24" Y="110"/>
-        <UsageCount Value="139"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="161"/>
       </Unit5>
       <Unit6>
         <Filename Value="utils/log.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="5"/>
-        <TopLine Value="601"/>
-        <CursorPos X="14" Y="627"/>
-        <UsageCount Value="139"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="178"/>
+        <CursorPos X="97" Y="195"/>
+        <UsageCount Value="161"/>
         <Loaded Value="True"/>
       </Unit6>
       <Unit7>
@@ -71,7 +69,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="139"/>
+        <UsageCount Value="161"/>
       </Unit7>
       <Unit8>
         <Filename Value="utils/netfunc.pas"/>
@@ -80,32 +78,32 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="139"/>
+        <UsageCount Value="161"/>
       </Unit8>
       <Unit9>
         <Filename Value="utils/strfunc.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="6"/>
-        <TopLine Value="471"/>
-        <CursorPos X="19" Y="484"/>
-        <UsageCount Value="139"/>
+        <TopLine Value="62"/>
+        <CursorPos X="20" Y="102"/>
+        <UsageCount Value="161"/>
         <Loaded Value="True"/>
       </Unit9>
       <Unit10>
         <Filename Value="utils/sysfunc.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="-1"/>
-        <TopLine Value="-1"/>
-        <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="139"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="88"/>
+        <CursorPos X="10" Y="109"/>
+        <UsageCount Value="161"/>
+        <Loaded Value="True"/>
       </Unit10>
       <Unit11>
         <Filename Value="settings.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="16" Y="4"/>
-        <UsageCount Value="139"/>
+        <UsageCount Value="161"/>
       </Unit11>
       <Unit12>
         <Filename Value="engine.pas"/>
@@ -113,16 +111,15 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="49"/>
         <CursorPos Y="68"/>
-        <UsageCount Value="139"/>
+        <UsageCount Value="161"/>
       </Unit12>
       <Unit13>
         <Filename Value="obj_proto.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="191"/>
         <CursorPos X="8" Y="196"/>
-        <UsageCount Value="139"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="161"/>
       </Unit13>
       <Unit14>
         <Filename Value="data_ctrl/reg_data_ctrl.pas"/>
@@ -130,15 +127,15 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="25"/>
         <CursorPos X="5" Y="54"/>
-        <UsageCount Value="139"/>
+        <UsageCount Value="161"/>
       </Unit14>
       <Unit15>
         <Filename Value="data_ctrl/opc_da_node.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <TopLine Value="96"/>
-        <CursorPos Y="119"/>
-        <UsageCount Value="139"/>
+        <CursorPos X="32" Y="117"/>
+        <UsageCount Value="161"/>
         <Loaded Value="True"/>
       </Unit15>
       <Unit16>
@@ -148,7 +145,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="134"/>
+        <UsageCount Value="156"/>
         <DefaultSyntaxHighlighter Value="None"/>
       </Unit16>
       <Unit17>
@@ -157,7 +154,7 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="40"/>
         <CursorPos X="54" Y="53"/>
-        <UsageCount Value="134"/>
+        <UsageCount Value="156"/>
       </Unit17>
       <Unit18>
         <Filename Value="opc_client/OPCCallback.pas"/>
@@ -166,7 +163,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="134"/>
+        <UsageCount Value="156"/>
       </Unit18>
       <Unit19>
         <Filename Value="opc_client/OPCCOMN.pas"/>
@@ -175,7 +172,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="134"/>
+        <UsageCount Value="156"/>
       </Unit19>
       <Unit20>
         <Filename Value="opc_client/OPCDA.pas"/>
@@ -184,7 +181,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="134"/>
+        <UsageCount Value="156"/>
       </Unit20>
       <Unit21>
         <Filename Value="opc_client/OPCError.pas"/>
@@ -193,7 +190,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="134"/>
+        <UsageCount Value="156"/>
       </Unit21>
       <Unit22>
         <Filename Value="opc_client/OPCSEC.pas"/>
@@ -202,7 +199,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="134"/>
+        <UsageCount Value="156"/>
       </Unit22>
       <Unit23>
         <Filename Value="opc_client/OPCTypes.pas"/>
@@ -211,7 +208,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="134"/>
+        <UsageCount Value="156"/>
       </Unit23>
       <Unit24>
         <Filename Value="opc_client/tag_list.pas"/>
@@ -220,7 +217,7 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="134"/>
+        <UsageCount Value="156"/>
       </Unit24>
       <Unit25>
         <Filename Value="opc_client/type_value.pas"/>
@@ -229,143 +226,164 @@
         <WindowIndex Value="-1"/>
         <TopLine Value="-1"/>
         <CursorPos X="-1" Y="-1"/>
-        <UsageCount Value="134"/>
+        <UsageCount Value="156"/>
       </Unit25>
       <Unit26>
         <Filename Value="data_ctrl/text_file_dest.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="226"/>
-        <CursorPos X="92" Y="249"/>
-        <UsageCount Value="123"/>
-        <Loaded Value="True"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="232"/>
+        <CursorPos X="34" Y="253"/>
+        <UsageCount Value="145"/>
       </Unit26>
+      <Unit27>
+        <Filename Value="utils/execfunc.pas"/>
+        <IsPartOfProject Value="True"/>
+        <TopLine Value="112"/>
+        <CursorPos X="39" Y="122"/>
+        <UsageCount Value="42"/>
+        <Loaded Value="True"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="../../lazarus/components/PascalScript/Source/uPSComponent.pas"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="232"/>
+        <CursorPos X="27" Y="255"/>
+        <UsageCount Value="14"/>
+        <Loaded Value="True"/>
+      </Unit28>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="data_ctrl/opc_da_node.pas"/>
-        <Caret Line="119" TopLine="96"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="127" Column="17" TopLine="111"/>
       </Position1>
       <Position2>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="193" TopLine="187"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="46" Column="67" TopLine="27"/>
       </Position2>
       <Position3>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="194" TopLine="187"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="73" Column="31" TopLine="56"/>
       </Position3>
       <Position4>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="196" TopLine="187"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="80" TopLine="68"/>
       </Position4>
       <Position5>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="197" TopLine="187"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="72" Column="3" TopLine="56"/>
       </Position5>
       <Position6>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="199" TopLine="187"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="138" Column="50" TopLine="110"/>
       </Position6>
       <Position7>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="201" TopLine="187"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="113" TopLine="106"/>
       </Position7>
       <Position8>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="202" TopLine="187"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="127" Column="17" TopLine="112"/>
       </Position8>
       <Position9>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="210" TopLine="187"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="128" Column="63" TopLine="107"/>
       </Position9>
       <Position10>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="212" TopLine="188"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="132" Column="37" TopLine="111"/>
       </Position10>
       <Position11>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="213" TopLine="189"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="130" Column="42" TopLine="114"/>
       </Position11>
       <Position12>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="215" TopLine="191"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="129" Column="41" TopLine="115"/>
       </Position12>
       <Position13>
-        <Filename Value="data_ctrl/text_file_dest.pas"/>
-        <Caret Line="87" TopLine="65"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="133" Column="12" TopLine="115"/>
       </Position13>
       <Position14>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="193" TopLine="187"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="80" Column="44" TopLine="57"/>
       </Position14>
       <Position15>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="194" TopLine="187"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="106" TopLine="100"/>
       </Position15>
       <Position16>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="196" TopLine="187"/>
+        <Filename Value="../../lazarus/components/PascalScript/Source/uPSComponent.pas"/>
+        <Caret Line="255" Column="59" TopLine="216"/>
       </Position16>
       <Position17>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="197" TopLine="187"/>
+        <Filename Value="../../lazarus/components/PascalScript/Source/uPSComponent.pas"/>
+        <Caret Column="33"/>
       </Position17>
       <Position18>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="199" TopLine="187"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="140" Column="26" TopLine="121"/>
       </Position18>
       <Position19>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="201" TopLine="187"/>
+        <Filename Value="uni_generator.lpr"/>
+        <Caret Line="178" TopLine="165"/>
       </Position19>
       <Position20>
-        <Filename Value="utils/dictionary.pas"/>
-        <Caret Line="180" TopLine="165"/>
+        <Filename Value="data_ctrl/opc_da_node.pas"/>
+        <Caret Line="117" Column="32" TopLine="96"/>
       </Position20>
       <Position21>
-        <Filename Value="utils/dictionary.pas"/>
-        <Caret Line="181" TopLine="165"/>
+        <Filename Value="uni_generator.lpr"/>
+        <Caret Line="178" TopLine="165"/>
       </Position21>
       <Position22>
-        <Filename Value="utils/dictionary.pas"/>
-        <Caret Line="200" TopLine="185"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="112" TopLine="97"/>
       </Position22>
       <Position23>
-        <Filename Value="utils/dictionary.pas"/>
-        <Caret Line="201" TopLine="185"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="113" TopLine="97"/>
       </Position23>
       <Position24>
-        <Filename Value="utils/dictionary.pas"/>
-        <Caret Line="217" TopLine="197"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="115" TopLine="97"/>
       </Position24>
       <Position25>
-        <Filename Value="utils/dictionary.pas"/>
-        <Caret Line="187" TopLine="172"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="116" TopLine="97"/>
       </Position25>
       <Position26>
-        <Filename Value="utils/dictionary.pas"/>
-        <Caret Line="188" TopLine="172"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="117" TopLine="97"/>
       </Position26>
       <Position27>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="202" TopLine="187"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="118" TopLine="97"/>
       </Position27>
       <Position28>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="210" TopLine="187"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="120" TopLine="97"/>
       </Position28>
       <Position29>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="212" TopLine="188"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="122" TopLine="98"/>
       </Position29>
       <Position30>
-        <Filename Value="obj_proto.pas"/>
-        <Caret Line="213" TopLine="189"/>
+        <Filename Value="utils/execfunc.pas"/>
+        <Caret Line="123" TopLine="99"/>
       </Position30>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
-      <Modes Count="0" ActiveMode=""/>
+      <Modes Count="1" ActiveMode="default">
+        <Mode0 Name="default">
+          <local>
+            <CommandLineParams Value="--test"/>
+          </local>
+        </Mode0>
+      </Modes>
     </RunParams>
   </ProjectSession>
   <Debugging>
@@ -374,8 +392,8 @@
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
-        <Source Value="data_ctrl/opc_da_node.pas"/>
-        <Line Value="114"/>
+        <Source Value="uni_generator.lpr"/>
+        <Line Value="178"/>
       </Item1>
     </BreakPoints>
   </Debugging>
