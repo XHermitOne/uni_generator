@@ -1,0 +1,623 @@
+
+     program db_example;
+
+     Const
+       {данные  константы  сгенерированы программой SETCONST.PAS,
+        предоставляемой инструментарием баз данных.         }
+       MaxDataRecSize = 108;
+       MaxKeyLen      =  30;
+       PageSize       =  24;
+       Order          =  12;
+       PageStackSize  =  10;
+       MaxHeight      =   4;
+
+     type
+       address = record
+         status: integer; {используется Turbo Access }
+         name: string[30];
+         street: string[40];
+         city: string[20];
+         state: string[2];
+         zip: string[9];
+       end;
+     {следующие файлы содержат процедуры баз данных}
+     {$i access.box} {основные процедуры баз данных}
+     {$i addkey.box} {добавить элементы            }
+     {$i delkey.box} {удалить элементы             }
+     {$i getkey.box} {поиск по дереву              }
+
+     var
+       dbfile: DataFile;
+       ifile: IndexFile;
+       done: boolean;
+-----------------------------------------------------------------
+     begin
+       InitIndex;
+       OpenFile(dbfile, 'mail.lst', SizeOf(address));
+       if not OK then
+       begin
+         WriteLn('creating new data file');
+         MakeFile(dbfile, 'mail.lst', SizeOf(address));
+       end;
+       OpenIndex(ifile, 'mail.ndx', 30, 0);
+       if not OK then
+       begin
+         WriteLn('creating new index file');
+         MakeIndex(ifile, 'mail.ndx', 30, 0);
+       end;
+       done:=false;
+       repeat
+         case MenuSelect of
+           '1': Enter;
+           '2': Remove;
+           '3': ListAll;
+           '4': Search;
+           '5': Update;
+           '6': done:=true;
+         end;
+       until done;
+       CloseFile(dbfile);
+       CloseIndex(ifile);
+     end.
+-----------------------------------------------------------------
+     {добавить адрес к списку}
+     procedure Enter;
+     var
+       done: boolean;
+       recnum: integer;
+       temp: string[30];
+       info: address;
+     begin
+       done:=FALSE;
+       repeat
+         Write('Enter name:');
+         Read(info.name); WriteLn;
+         if Length(info.name)=0 then done:=TRUE
+         else
+         begin
+           Write('Enter street: ');
+           Read(info.street); WriteLn;
+           Write('Enter city: ');
+           Read(info.city); WriteLn;
+           Write('Enter state: ');
+           Read(info.state); WriteLn;
+           Write('Enter zip: ');
+           Read(info.zip); WriteLn;
+           info.status:=0; {сделать активной }
+           FindKey(ifile, recnum, info.name);
+           if not OK then {убедитесь,  что  нет  дублированных
+                             ключей }
+
+           begin
+             AddRec(dbfile, recnum, info);
+             AddKey(ifile, recnum, info.name);
+           end else WriteLn('Duplicate key ignored');
+         end;
+       until done;
+     end; {Enter}
+
+-----------------------------------------------------------------
+     procedure ListAll;
+     var
+       info: address;
+       len, recnum: integer;
+     begin
+       len: = filelen(dofile) -1;
+       for recnum:=1 to len do
+       begin
+       GetRec(dbfile, recnum, info);
+       {display if not deleter}
+       if info.status = 0 then display(info);
+     end;
+   end; {ListAll}
+-----------------------------------------------------------------
+     {найти заданный элемент}
+     procedure Search;
+     var
+       name: string[30];
+       recnum: integer;
+       info: address;
+     begin
+       Write('Enter name: ');
+       ReadLn(name);
+
+       {найти ключ,если он существует}
+       FindKey(ifile, recnum, name);
+       if OK then { если найден }
+       begin
+         GetRec(dbfile, recnum, info);
+         {display if not deleter}
+         if info.status = 0 then Display(info);
+       end else WriteLn('not found');
+     end; {Search}
+
+------------------------------------------------------------------
+     { изменение адреса в списке, исключая поле имени }
+     procedure Update;
+     var
+       done: boolean;
+       recnum: integer;
+       temp: string[30];
+       info: address;
+     begin
+       Write('Введите имя: ');
+       Read(info.name); WriteLn;
+       FindKey(ifile, recnum, info.name);
+       if OK then
+       begin
+         Write('Введите улицу: )';
+         Read(info.street); WriteLn;
+         Write('Введите город: ');
+         Read(info.city); WriteLn;
+         Write('Введите штат: ');
+         Read(info.state); WriteLn;
+         Write('Введите индекс: ');
+         Read(info.zip); WriteLn;
+         info.status:=0; {сделать активной}
+         PutRec(dbfile, recnum, info);
+       end else WriteLn('ключ не найден');
+     end; {Update}
+
+-----------------------------------------------------------------
+     program db_example;
+
+     Const
+       {данные  константы  сгенерированы программой SETCONST.PAS,
+        предоставляемой инструментарием баз данных.         }
+       MaxDataRecSize = 108;
+       MaxKeyLen      = 30;
+       PageSize       = 24;
+       Order          = 12;
+       PageStackSize  = 10;
+       MaxHeight      =  4;
+
+     type
+       address = record
+         status: integer; {используется Turbo Access }
+         name: string[30];
+         street: string[40];
+         city: string[20];
+         state: string[2];
+         zip: string[9];
+       end;
+     {следующие файлы содержат процедуры баз данных}
+     {$i access.box} {основные процедуры баз данных}
+     {$i addkey.box} {добавить элементы            }
+     {$i delkey.box} {удалить элементы             }
+     {$i getkey.box} {поиск по дереву              }
+
+     var
+       dbfile: DataFile;
+       ifile: IndexFile;
+       done: boolean;
+
+     function MenuSelect:char; {возврат  пользовательского
+                             выбора }
+
+     var
+       ch:char;
+     begin
+       WriteLn('1.       ');
+       WriteLn('2. Удалить имя      ');
+       WriteLn('3. Отобразить список');
+       WriteLn('4. Обновление       ');
+       WriteLn('5. Поиск по имени   ');
+       WriteLn('6. Выход            ');
+       repeat
+         WriteLn;
+         Write('Введите ваш выбор:');
+         Read(ch); ch:=UpCase(ch); WriteLn;
+         until (ch>='1') and (ch<='6');
+         MenuSelect:=ch;
+       end; {MenuSelect}
+
+     {добавить адрес к списку}
+       procedure Enter;
+       var
+         done: boolean;
+         recnum: integer;
+         temp: string[30];
+         info: address;
+       begin
+         done:=FALSE;
+         repeat
+           Write('Введите имя: ');
+           Read(info.name); WriteLn;
+           if Length(info.name)=0 then done:=TRUE
+
+         else
+         begin
+         Write('Введите улицу: ');
+         Read(info.street); WriteLn;
+         Write('Введите город: ');
+         Read(info.city); WriteLn;
+         Write('Введите штат: ');
+         Read(info.state); WriteLn;
+         Write('Введите индекс: ');
+         Read(info.zip); WriteLn;
+         info.status:=0; {сделать активной}
+           FindKey(ifile, recnum, info.name);
+           if not OK then {убедитесь,  что  нет  дублированных
+                             ключей }
+           begin
+             AddRec(dbfile, recnum, info);
+             AddKey(ifile, recnum, info.name);
+           end else WriteLn('Дублированный ключ игнорирован');
+         end;
+       until done;
+     end; {Enter}
+
+     { изменение адреса в списке, исключая поле имени }
+     procedure Update;
+     var
+       done: boolean;
+       recnum: integer;
+       temp: string[30];
+       info: address;
+     begin
+       Write('Введите имя: ');
+       Read(info.name); WriteLn;
+       FindKey(ifile, recnum, info.name);
+       if OK then
+       begin
+         Write('Введите улицу: ');
+         Read(info.street); WriteLn;
+         Write('Введите город: ');
+         Read(info.city); WriteLn;
+         Write('Введите штат: ');
+         Read(info.state); WriteLn;
+         Write('Введите индекс: ');
+         Read(info.zip); WriteLn;
+         info.status:=0; {сделать активной}
+         PutRec(dbfile, recnum, info);
+       end else WriteLn('ключ не найден');
+     end; {Update}
+
+     {удалить адрес из списка }
+     procedure Remove;
+     var
+       recnum: integer;
+       name: string[30];
+       info: address;
+     begin
+       Write('Введите имя для удаления : ');
+       Read(name); WriteLn;
+       FindKey(ifile, recnum, name);
+       if OK then
+       begin
+         DeleteRec(dbfile, recnum);
+         DeleteKey(ifile, recnum, name);
+       end else WriteLn('Не найдено');
+     end; {Remove}
+
+     procedure Display(info: address);
+     begin
+       WriteLn(info.name);
+       WriteLn(info.street);
+       WriteLn(info.city);
+       WriteLn(info.state);
+       WriteLn(info.zip); WriteLn;
+     end; {Display}
+
+     procedure ListAll;
+     var
+       info: address;
+       len, recnum: integer;
+     begin
+       len := fileLen(dbfile) -1;
+       for recnum:=1 to len do
+       begin
+         GetRec(dbfile, recnum, info);
+         {отобразить,  если не уничтожен}
+         if info.status = 0 then display(info);
+       end;
+     end; {ListAll}
+
+     {Найти заданный элемент }
+     procedure Search;
+     var
+       name: string[30];
+       recnum: integer;
+       info: address;
+     begin
+       Write('Введите имя: ');
+       ReadLn(name);
+       {найти ключ,  если существует}
+       FindKey(ifile, recnum, name);
+       if OK then
+       begin
+         GetRec(dbfile, recnum, info);
+         {отобразить,  если не уничтожен}
+         if info.status = 0 then Display(info);
+       end else WriteLn('не найден');
+     end; {Search}
+
+     begin
+       InitIndex;
+       OpenFile(dbfile, 'mail.lst', SizeOf(address));
+       if not OK then
+       begin
+         WriteLn('Cоздание нового файла');
+         MakeFile(dbfile, 'mail.lst', SizeOf(address));
+       end;
+       OpenIndex(ifile, 'mail.ndx', 30, 0);
+       if not OK then
+       begin
+         WriteLn('Cоздание нового файла ');
+         MakeIndex(ifile, 'mail.ndx', 30, 0);
+       end;
+       done:=false;
+       repeat
+         case MenuSelect of
+           '1': Enter;
+           '2': Remove;
+           '3': ListAll;
+           '4': Search;
+           '5': Update;
+           '6': done:=true;
+         end;
+       until done;
+       CloseFile(dbfile);
+       CloseIndex(ifile);
+     end.
+
+-----------------------------------------------------------------
+     type
+       inv = record
+          status: integer;
+          name: string[30];
+          descript := string[40];
+          guantity: integer;
+          cost: real;
+        end;
+     Const
+       MaxDataRecSize = 82;
+       MaxKeyLen      = 30;
+       PageSize       = 24;
+       Order          = 12;
+       PageStackSize  = 10;
+       MaxHeight      =  4;
+
+------------------------------------------------------------------
+     program inventory;
+
+     Const
+       { данные  константы  генерируются  программой SETCONST.PAS
+         предоставляемой инструментарием баз данных }
+       MaxDataRecSize = 82;
+       MaxKeyLen      = 30;
+       PageSize       = 24;
+       Order          = 12;
+       PageStackSize  = 10;
+       MaxHeight      =  4;
+
+     type
+       inv = record
+       status: integer;
+       name: string[30];
+       descript: string[40];
+       guantity: integer;
+       cost: real;
+     end;
+
+     {следующие файлы содержат процедуры баз данных}
+     {$i access.box} {основные процедуры баз данных}
+     {$i addkey.box} {добавить элементы            }
+     {$i delkey.box} {удалить элементы             }
+     {$i getkey.box} {поиск по дереву              }
+
+     var
+       dbfile: DataFile;
+       ifile: IndexFile;
+       done: boolean;
+
+     function MenuSelect:char; {возврат  пользовательского
+                             выбора }
+     var
+       ch:char;
+
+     begin
+       WriteLn('1. Введите элемент              ');
+       WriteLn('2. Удалить элемент              ');
+       WriteLn('3. Отобразить инвентарный список');
+       WriteLn('4. Поиск элементов              ');
+       WriteLn('5. Обновление                   ');
+       WriteLn('6. Выход                        ');
+
+       repeat
+         WriteLn;
+         Write('Введите ваш выбор: ');
+         Read(ch); ch:=UpCase(ch); WriteLn;
+       until (ch>='1') and (ch<='6');
+       MenuSelect:=ch;
+     end; {MenuSelect}
+
+     {добавить элемент к списку}
+     procedure Enter;
+     var
+       done: boolean;
+       recnum: integer;
+       temp: string[30];
+       info: inv;
+     begin
+       done:=FALSE;
+       repeat
+         Write('Введите имя элемента: ');
+         Read(info.name); WriteLn;
+         if Length(info.name)=0 then dont:=TRUE
+         else
+         begin
+           Write('Введите описание: ');
+           Read(info.descript); WriteLn;
+           Write('Введите количество: ');
+           Read(info.guantity); WriteLn;
+           Write('Введите стоимость: ');
+           Read(info.cost); WriteLn;
+           info.status:=0; { сделать активной }
+           FindKey(ifile, recnum, info.name);
+           if not OK then
+           begin
+             AddRec(dbfile, recnum, info);
+             AddKey(ifile, recnum, info.name};
+           end else WriteLn('дублированный ключ игнорирован');
+         end;
+       until done;
+     end; {Enter}
+
+     {изменение элемента в списке с сохранением поля имени}
+     procedure Update;
+     var
+       done: boolean;
+       recnum: integer;
+       temp: string[30];
+       info: inv;
+
+     begin
+       Write('Enter item name: ');
+       Read(info.name); WriteLn;
+       FindKey(ifile, recnum, info.name);
+       if OK then
+       begin
+           Write('Введите описание: ');
+           Read(info.descript); WriteLn;
+           Write('Введите количество: ');
+           Read(info.guantity); WriteLn;
+           Write('Введите стоимость: ');
+           Read(info.cost); WriteLn;
+           info.status:=0;
+         info.status:=0; {сделать активной}
+         PutRec(dbfile, recnum, info);
+       end else WriteLn('ключ не найден');
+     end; {Update}
+
+     {удалить элемент из  инвентарного  списка}
+     procedure Remove;
+     var
+       recnum: integer;
+       name: string[30];
+       begin
+         Write('Введите имя уничтожаемого элемента: ');
+         Read(name); WriteLn;
+         FindKey(ifile, recnum, name);
+         if OK then
+         begin
+           DeleteRec(dbfile, recnum);
+           DeleteKey(ifile, recnum, name);
+         end else WriteLn('Не найдено');
+     end; {Remove}
+
+     procedure Display(info: inv);
+     begin
+       WriteLn('Item name: ',info.name);
+       WriteLn('Description: ',info.descript);
+       WriteLn('Quantity on hand: ',info.quantity);
+       WriteLn('Initial cost: ',info.cost:10:2);
+       WriteLn;
+     end; {Display}
+
+     procedure ListAll;
+     var
+       info: inv;
+       len, recnum: integer;
+
+     begin
+       len := filelen(dbfile) -1;
+       for recnum:=1 to len do
+       begin
+         Getrec(dbfile, recnum, info);
+         if info.status = 0 then display(info);
+       end;
+     end; {ListAll}
+
+     {поиск элемента}
+     procedure Search;
+     var
+       name: string[30];
+       recnum: integer;
+       info: inv;
+     begin
+       Write('Введите имя элемента: ');
+       ReadLn(name);
+
+       {найти ключ,  если он существует}
+       FindKey(ifile, recnum, name);
+       if OK then {если найден}
+       begin
+         GetRec(dbfile, recnum, info);
+         if info.status = 0 then Display(info);
+       end else WriteLn('не найден');
+     end; {Search}
+
+     begin
+       InitIndex;
+       OpenFile(dbfile, 'inv.lst', SizeOf(inv));
+       if not OK then
+       begin
+         WriteLn('Cоздание нового файла');
+         MakeFile(dbfile, 'inv.lst', SizeOf(inv));
+       end;
+       OpenIndex(ifile, 'inv.ndx', 30, 0);
+       if not OK then
+       begin
+         WriteLn('Cоздание нового файла');
+         MakeIndex(ifile, 'inv.ndx', 30, 0);
+       end;
+       done:=false;
+       repeat
+
+         case MenuSelect of
+            '1': Enter;
+            '2': Remove;
+            '3': ListAll;
+            '4': Search;
+            '5': Update;
+            '6': done:=true;
+          end;
+        until done;
+        CloseFile(dbfile);
+        CloseIndex(ifile);
+     end.
+
+-----------------------------------------------------------------
+     program simple_sort;
+
+     var
+       data: array [1..10] of integer;
+       result: integer;
+
+     {$i sort.box} {read in the sort routines}
+
+     procedure InP;
+     var
+       f: integer;
+     begin
+       for i:=1 to 10 do ReadLn(dara[i]);
+       for i:=1 to 10 do SortRelease(data[i]);
+     end; {InP}
+
+     function Less;
+     var
+       first: char absolute X;
+       second: char absolute Y;
+     begin
+       Less := first < second;
+     end; {Less}
+
+     procedure OutP;
+     var
+       data: integer;
+     begin
+       repeat
+         SortReturn(data);
+         write(data, ' ');
+       until SortEOS;
+     end; {OutP}
+
+     begin
+       result:=TurboSort(sizeOf(integer));
+       writeLn('sort result; ', result);
+     end.
+
+
+
+

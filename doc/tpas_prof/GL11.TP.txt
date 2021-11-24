@@ -1,0 +1,160 @@
+
+    type
+      str80 = string[80];
+      StrArray = array [1..100] of str80;
+
+    function StrSearch1(str: StrArray; word: str80): boolean;
+    { правильный,  неизбыточный код }
+    var
+      t: integer;
+    begin
+      StrSearch1 := FALSE;
+      for t := 1 to 100 do
+       if str[t]=word then StrSearch1 := TRUE;
+    end;
+
+    Function StrSeach2(str: StrArray; word: str80): boolean;
+    {неправильный,  избыточный код }
+    var
+      t: integer;
+    begin
+      t :=1;
+      StrSearch := FALSE;
+      if str[t]=word then StrSearch2 := TRUE
+      else
+      begin
+      t := 2;
+      while(t<=100) do
+      begin
+       if str[t]=word then StrSearch2 := TRUE;
+       t := t+1;
+      end;
+     end;
+    end;
+-----------------------------------------------------------------
+    program WRONL; {данная программа имеет ошибку}
+
+    type
+      pntr = ^obiect;
+
+      obiect = record
+       x: char;
+       y: integer;
+       name:string[80];
+      end;
+
+    var
+      p: pntr;
+
+    begin
+      p^.name := 'tom';
+      p^.x := 'g';
+      p^.y := 100;
+    end.
+-----------------------------------------------------------------
+     program RIOHL; {это верная программа}
+
+     type
+       pntr = ^object;
+
+       object = record
+        x: char;
+        y: integer;
+        name:string[80];
+       end;
+
+     var
+       p: pntr;
+
+     begin
+       if MaxAvail>=SizeOf(object) then
+       begin  {свободная память}
+        New(p);
+        p^.name := 'tom';
+        p^.x := 'g';
+        p^y := 100;
+       end;
+     end.
+
+-----------------------------------------------------------------
+     program WRONG; {данная программа не вернa}
+     var
+       t: integer;
+       units_processed: integer;
+
+     procedure WriteLn(t: integer);
+     begin
+       write(t, ' ', 'байт свободной памяти в неупорядоченном
+                    массиве');
+     end;
+
+     begin
+       {вычислить объем свободной памяти в неупорядоченном
+                         массиве}
+       WriteLn(NemAvail);
+       .
+       .
+       .
+       WriteLn(units_processed);
+     end.
+-----------------------------------------------------------------
+     {проверить окно, оставшееся в глобальной матрице count }
+     function MemAvail: boolean;
+     var
+       t: integer;
+     begin
+       MemAvail := FALSE;
+       for t := 1 to MAX do if count[t]=0 then MemAvail:=TRUE;
+     end;
+
+-----------------------------------------------------------------
+     program Errors; {данная программа не компилируется}
+
+     var
+       s: string[80];
+
+     procedure F1(x: string[80]);
+     begin
+       WriteLn(s);
+     end;
+
+     begin
+       ReadLn(s);
+       F1(s);
+     end.
+
+-----------------------------------------------------------------
+     program CorrectecError; {данная программа будет
+                      скомпилирована}
+     type
+       str80 = string[80];
+
+     var
+       s := str80;
+
+     procedure F1(x: str80);
+     begin
+       WriteLn(x);
+     end;
+
+     begin
+       ReadLn(s);
+       F1(s);
+     end.
+
+-----------------------------------------------------------------
+     program Error; {данная программа не будет скомпилирована}
+
+     procedure F2;
+     var
+       t: integer;
+     begin
+       for t := 1 to 10 do WriteLn('hi there');
+     end
+
+     begin
+       F2;
+     end.
+
+
+

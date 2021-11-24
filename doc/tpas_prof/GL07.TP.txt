@@ -1,0 +1,581 @@
+    { программа, которая сравнивает три генератора случайных чи-
+                           сел }
+    program RanGenerator;
+
+    uses
+      Graph;
+
+    const
+      COUNT = 1000;
+
+    var
+      freg1, freg2, freg3: array[0..9] of integer;
+      a2, a1: integer;
+      f, f2, f3: real;
+      r, r2, r3: real;
+      y, x: integer;
+      GraphDriver, GraphMode: integer;
+
+    {отображение графического вывода}
+    procedure Display;
+    var
+      t : integer;
+    begin
+      for t := 0 to 9 do
+      begin
+       Line(t*10, 180, t*10, 180-freg1[t]);
+       Line(t*10+110, 180, t*10+110, 180-freg2[t]);
+       Line(t*10+220, 180, t*10+220, 180-freg3[t]);
+      end;
+    end; {Display}
+
+    function Ran1: real;
+    var
+      t: real;
+    begin
+      t := (a1*32749+3) mod 32749;
+      a1 := Trunc(t);
+      Ran1 := Abs(t/32749);
+    end; {Ran1}
+
+    function Ran2: real;
+    var
+      t: real;
+    begin
+      t := (a2*10001+3) mod 17417;
+      a2 := Trunc(t);
+      Ran2 := Abs(t/17417);
+    end;  {Ran2}
+
+    begin
+      { переключение  на
+       графический режим,  используя  режим 4 CGA/EGA }
+      GraphDriver := CGA;
+      GraphMode := CGAC1;
+      InitGraph(GraphDriver, GraphMode,  '');
+      SetColor(2);
+      SetLineStyle(SolidLn,  0,  NormWidth);
+
+      OutTextXy(80, 10, 'Comparison of Random');
+      OutTextXy(96, 20, 'Number Generators');
+
+      { прорисовать базовые линии }
+      Line(0, 180, 90, 180);
+      Line(110, 180, 200, 180);
+
+      Line(220, 180, 310, 180);
+      OutTextXy(30, 190, 'Random    Ran1    Ran2');
+
+       {инициализация переменных генераторов случайных чисел }
+      a1:=1; a2:=203;
+      f := 0; f2 := 0; f3 := 0;
+
+      for x := 0 to 9 do
+      begin { инициализация матриц частот }
+       freg1[x] := 0;
+       freg2[x] := 0;
+       freg3[x] := 0;
+      end;
+      for x := 1 to COUNT do
+      begin
+       r:=Random;    { взять случайное число                    }
+       f:=f+r;       { прибавить для  вычисления среднего     }
+       y:=Trunc(r*10);{ преобразовать в целое число от 0 до 9 }
+       freg1[y]:=freg1[y]+1;{ увеличить счетчик частоты       }
+
+       r2 := Ran1;    { взять случайное число                   }
+       f2:=f2+r2;     { прибавить для       вычисления среднег  }
+       y:=Trunc(r2*10);{ преобразовать в целое число от 0 до 9}
+       freg2[y]:=freg2[y]+1;{ увеличить счетчик частоты       }
+
+       r3 := Ran2;       { взять случайное число               }
+       f3:=f3+r3;       { прибавить для  вычисления среднего    }
+       y:=Trunc(r3*10);{  преобразовать в целое число от 0 до 9}
+       freg3[y]:=freg3[y]+1;{увеличить счетчик частоты        }
+
+       Display;  {  отобразить счетчики частот }
+      end;
+      ReadLn;
+      RestoreCrtMode;
+
+      WriteLn('mean of Random is: ', f/COUNT);
+      WriteLn('mean of Ran1 is: ', f2/COUNT);
+      WriteLn('mean of Ran2 is: ', f3/COUNT);
+    end.
+-----------------------------------------------------------------
+    {данная функция использует три генератора для возврата одного
+      случайного числа
+    }
+    function CombRandom: real;
+    var
+      f: real;
+
+    begin
+      f := Ran2;
+      if f>0.5 thenCombRandom := Random
+      else CombRandom := Ran1; { случайный выбор генератора }
+    end; {CombRandom}
+
+------------------------------------------------------------------
+    { данная программа демонстрирует комбинированный вывод трех
+                генераторов случайных  чисел
+    }
+    program MultiRandom;
+
+    uses
+      Graph;
+    const
+      COUNT=1000;
+
+    var
+      freg: array[0..9] of integer;
+      a2,a1: integer;
+      f, r: real;
+      y, x: integer;
+      GraphDriver, GraphMode: integer;
+
+     { отображение  графического
+      представления работы генераторов }
+     procedure Display;
+     var
+       t: integer;
+
+     begin
+       for t := 0 to 9 do
+        Line(t*10+110, 180, t*10+110, 180-freg[t]);
+     end; {Display}
+
+     function Ran1: real;
+     var
+       t: real;
+     begin
+       t := (a1*32749+3) mod 32749;
+       a1 := Trunc(t);
+       Ran1 := Abs(t/32749);
+     end; {Ran1}
+
+     function Ran2: real;
+     var
+       t: real;
+     begin
+       t := (a2*10001+3) mod 17417;
+       a2 := Trunc(t);
+       Ran2 := Abs(t/17417);
+     end; {Ran2}
+
+     {данная функция использует три генератора
+      для возврата одного случайного  числа
+     }
+     function CombRandom real;
+     var
+       t: real;
+
+     begin
+       f := Ran2;
+       if f>0.5 then CombRandom := Random
+       else CombRandom := Ran1; {случайный выбор генератора }
+     end; {CombRandom}
+     begin
+      { переключение  на
+       графический режим,  используя  режим 4 CGA/EGA }
+       GraphDriver := CGA;
+       GraphMode := CGAC1;
+       InitGraph(GraphDriver, GraphMode,  '');
+       SetColor(2);
+       SetLineStyle(SolidLn, 0, NormWidth);
+
+       OutTextXy(48, 10, 'вывод, полученный комбинированием ');
+       OutTextXy(40,20, 'три  генератора  случайных чисел ');
+       Line(110, 180, 200, 180);
+
+       a1:=1; a2:=203; {инициализация переменных для
+                генераторов случайных чисел }
+       f := 0;
+
+       for x:=0 to 9 do freg[x]:=0; {инициализация матрицы
+                          частот}
+
+       for x := 1 to COUNT do begin
+        r:=CombRandom;  { взять случайное число  }
+        f:=f+1;   { прибавить для  вычисления среднего  }
+        y:=Trunc(r*10);{ преобразовать в целое число от 0 до 9}
+        freg[y]:=freg[y]+1;{ увеличить счетчик частоты }
+
+
+        Display;
+     end;
+     ReadLn;
+     RestoreCrtMode;
+     WriteLn('Среднее случайное число равно : ', f/COUNT);
+     end.
+
+-----------------------------------------------------------------
+     var
+       gueues, count: array[0..9] of integer;
+       open: array[0..9] of boolean;
+       cust, time: integer;
+       a1, a2: integer;
+       y, x: integer;
+       change: boolean;
+       GraphDiver, GraphMode: integer;
+
+     begin
+       {переключение на графику,  используя режим 4 CGA/EGA}
+       GraphDriver := CGA;
+       GraphMode := CGAC1;
+       InitGraph(GraphDriver, GraphMode, '');
+       SetColor(2);
+       SetLineStyle(SolidLn, 0, NormWidth);
+
+       a1:=1; a2:=203; {инициализация переменных  генератора
+                        случайных чисел}
+       change := FALSE;
+       cust := 0;
+       time := 0;
+
+       for x:=0 to 9 do begin
+        gueues[x]:=0; {инициализация очереди }
+        open[x]:=FALSE; { нет покупателей или очередей в
+                          начале дня }
+
+        count[x]:=0; {счетчик очереди }
+       end;
+
+       OutTextXy(155, 190, '1             10');
+       OutTextXy(8,190,'Check-out lines: ');
+
+     { теперь начинается день открытием первой очереди }
+     open[0] := TRUE;
+
+       repeat
+        AddCust;
+        AddQueue;
+        Display;
+        CheckOut;
+        Display;
+        if (time>30) and (time<50) then AddCust;
+        if (time>70) and (nime<80) then begin
+          AddCust;
+          AddCust;
+        end;
+        time := time+1;
+       until time>100; { конец дня }
+       ReadLn;
+       RestoreCrtMode;
+     end.
+
+-----------------------------------------------------------------
+     repeat
+       AddCust;
+       AddQueue;
+       Display;
+       CheckOut;
+       Display;
+       if (time>30) and (time<50) then AddCust;
+       if (time>70) and (time<80) then begin
+        AddCust;
+        AddCust;
+       end;
+       time := time+1;
+     until time>100;  { конец дня }
+
+-----------------------------------------------------------------
+     program simulation; {моделирование очередей в бакалейной
+                         лавке }
+
+     uses
+       Graph;
+     var
+       gueues, count: array[0..9] of integer;
+       open: array[0..9] of boolean;
+       cust, time: integer;
+       a1, a2: integer;
+       y,x: integer;
+       change: boolean;
+       GraphDriver, GraphMode: integer;
+
+     function Ran1: real;
+     var
+       t: real;
+     begin
+       t := (a1*32749+3) mod 32749;
+       a1 := Trunc(t);
+       Ran1 := Abs(t/32749);
+     end; {Ran1}
+
+     function Ran2: real;
+     var
+       t: real;
+     begin
+       t := (a2*10001+3) mod 17417;
+       a2 := Trunc(t);
+       Ran2 := Abs(t/17417);
+     end; {Ran2}
+
+     function CombRandom: real;
+     {random selection of generators} 2
+     var
+       f: real;
+
+     begin
+       f := Ran2;
+       if f>0.5 then CombRandom := Random
+       else CombRandom:=Ran1;{случайный выбор генераторов}
+     end; {CombRandom}
+
+     { добавление покупателей в очередь }
+     procedure AddCust;
+     var
+       f, r: real;
+
+     begin
+       if change then f:=Random {переключение между двумя }
+       else f := Ran2;              {генераторами }
+
+       if f>0.5 then
+        if f>0.6 then cust:=cust+1 {добавить одного покупателя}
+        else if f>0.7 then cust:=cust+2 {два покупателя}
+        else if f<0.8 then cust:=cust+3 {три покупателя }
+        else cust := cust+4; {четыре покупателя }
+     end; {AddCust}
+     { обслуживание покупателя }
+     Procedure CheckOut;
+     var
+       t: integer;
+
+     begin
+       for t := 0 to 9 do
+       begin
+        if gueues[t]<>0 then
+        begin
+          {получить время обслуживания }
+          while count[t]=0 do count[t]:=Trunc(Ran1+5);
+          {новый покупатель требует времени обслуживания }
+          count[t]:=count[t]-1;
+          if count[t]=0 then gueues[t]:=gueues[t]-1;
+          {удаление покупателя}
+        end;
+        if gueues[t]=0 then open[t]:=FALSE;{закрытие очереди}
+       end;
+     end; {CheckOut}
+
+     {возвращается TRUE,  если очередь переполнена }
+     function AllFull: Boolean;
+     var
+       t: integer;
+
+     begin
+       AllFull := TRUE;
+       for t := 0 to 9 do
+        if (gueues[t]<10) and open[t] then AllFull:=FALSE;
+     end; {AllFull}
+
+     {данная процедура вводит новые очереди }
+     procedure AddQueue;
+
+     var
+       t, line: integer;
+       done: Boolean;
+
+     begin
+       done := FALSE;
+       while cust<>0 do
+       begin
+        if AllFull then
+        begin
+          t:=0;
+          repeat
+            if not open[t] then
+            begin
+              open[t]:=TRUE;
+              done:=TRUE;
+              end;
+            t:=T+1;
+            until done or (t=9);
+          end
+          else
+          begin
+            Line:=Trunc(Ran2*10);
+            if open[line] and (gueues[line]<10) then
+            begin
+              gueues[line]:=gueues[line]+1;
+              cust:=cust-1;
+            end;
+          end;
+          if AllFull and open[9] then cust:=0; {all full}
+        end;
+     end; {AddQueue}
+
+     {очистить символы длины, начиная с позиции Х, У }
+     procedure ClrVed(x,y,len: integer);
+     var
+       i: integer;
+       s: string[80];
+     begin
+       for i := 1 to len do
+        s := concat(Chr(219), Chr(219));
+       SetColor(0);
+       OutTextXy(x, y, s);
+       SetColor(2);
+     end; {ClrVid}
+
+     {отображение экрана результатов моделирования очереди }
+     procedure Display;
+     var
+       t: integer;
+       value: string[80];
+     begin
+       cirVid(170, 10, 3);
+       str(time, value);
+       OutTextXy(120, 10, 'Time: ');
+       OutTextXy(170, 10, value);
+       for t := 0 to 9 do
+       begin
+        {erase old line}
+        SetColor(0);
+        Line((t*10)+160, 180, (t*10)+160, 180);
+
+        {нарисовать   новое   состояние моделирования }
+        SetColor(2);
+        Circle((t*10)+160, 180, 3);
+        Line((t*10)+160, 180, (t*10)+160, 180-gueues[t]*10);
+
+        {дать также текстовый вывод }
+        OutTextXy(8, t*10, 'gueue');
+        str(t+1, value);
+        value       := concat(value, ':');
+        OutTextXy(56, t*10, value);
+        ClrVid(80, t*10, 3);
+        str(gueues[t], value);
+        OutTextXy(80, t*10, value);
+        end;
+     end; {Display}
+
+     begin
+       {переключение на графику,  используя режим 4 CGA/EGA }
+       GraphDriver := CGA;
+       GraphMode := CGAC1;
+       InitGraph(GraphDriver, GraphMode, '');
+       SetColor(2);
+       SetLineStyle(SolidLn, 0, NormWidth);
+
+     a1:=1; a2:=203; {инициализация переменных генератора
+                     случайных чисел }
+
+       change:=FALSE;
+       cust:=0;
+       time:=0;
+
+       for x := 0 to 9 do begin
+        gueues[x]:=0; {инициализировать очереди }
+        open[x]:=FALSE;{нет покупателей или очередей в начале
+                           дня }
+        count[x]:=0; {счетчик очереди }
+       end;
+
+       OutTextXy(155, 190, '1         10');
+       OutTextXy(8, 190, 'Check-out lines; ');
+
+     {теперь начинается день
+      открытием первого пункта обслуживания
+      }
+     open[0]:=TRUE;
+
+     repeat
+       AddCust;
+       AddQueue;
+       Display;
+       CheckOut;
+       Display;
+       if (time>30) and (time<50) then AddCust;
+       if (time>70) and (time<80) then begin
+        AddCust;
+        AddCust;
+       end;
+       time:=time+1;
+      until time>100; { конец дня }
+      ReadLn;
+      RestoreCrtMode;
+     end.
+
+------------------------------------------------------------------
+     {программа управления портфелем акций методом случайного
+                          поиска}
+     program RandomWalk;
+
+     uses
+       Crt;
+
+     type
+       str80 = string[80];
+       action = (buy, sell, hold, short, margin);
+     var
+
+       t: integer;
+       stock: array[1..10] of str80;
+       ch: char;
+       act: action;
+       f: real;
+
+     { ввод имен компаний }
+     procedure Enter;
+     var
+       t: integer;
+     begin
+       for t := 1 to 10 do
+       begin
+        Write('Введите имена компаний : ');
+        ReadLn(stock[t]);
+       end;
+     end; {Enter}
+
+     {возврат очередного курса акций }
+     function NextAction: action;
+     var
+       f: real;
+
+     begin
+       NextAction := hold;
+       case Trunc(Random*10) of
+        1: NextAction := sell;
+        2: NextAction := buy;
+        3: NextAction := short;
+        4: NextAction := margin
+       end;
+     end; {NextAction}
+
+     begin
+       Write('Подождать, а затем нажать любую клавишу ');
+       repeat
+        f := Random; {Randomize the generator}
+       until KeyPressed;
+       ch := ReadKey;
+       WriteLn;
+
+       enter;
+
+       repeat
+        for t := 1 to 10 do
+        begin
+          act := NextAction;
+          if Length(stock[t])>0 then
+          begin
+            Write(stock[t], ': ');
+            case act of
+              buy: WriteLn('Кyпить');
+              sell: WriteLn('Продать');
+
+              short: Write('Продать не на долго');
+              margin: WriteLn('Купить на прибыль ');
+              hold: WriteLn('Держать ');
+            end;
+          end;
+        end;
+        Write('Снова (Y/N) ');
+        ch := ReadKey;
+        WriteLn;
+       until UpCase(ch)='N';
+     end.
+
+
+

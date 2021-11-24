@@ -1,0 +1,133 @@
+    unit MyUnit;
+
+    interface {объявляет общедоступные символы}
+      procedure InputInt(prompt: string; var i: integer);
+
+    Implementation {собственно реализация символов}
+
+    procedure InputInt;
+    begin
+      Write(prompt);
+      Read(i);
+    end;
+
+    begin
+      WriteLn('помещайте код инициализации здесь');
+    end.
+-----------------------------------------------------------------
+     Короткая программа, показанная далее, использует MyUnit:
+    program UnitTest;
+
+    uses
+      MyUnit;
+
+    var
+      x: integer;
+
+    begin
+      InputInt('введите число от 0 до 32000: ',x);
+      if (x mod 2)=0 then WriteLn('even')
+      else WriteLn('odd');
+    end.
+
+-----------------------------------------------------------------
+    unit MyUnit;
+
+    interface {объявляет общедоступные символы}
+      procedure InputInt(prompt: string; var i: integer);
+
+    var
+      TooLong: boolean;
+      implementation
+
+      procedure InputInt;
+      begin
+       if Length(prompt) > 75 then
+         Toolong: = true
+       else
+       begin
+         Write(prompt);
+         Read(i);
+         TooLong: = false;
+       end;
+    end;
+
+    begin
+      WriteLn('Помещайте код инициализации здесь');
+    end.
+
+    program UnitTest;
+
+
+    uses
+      MyUnit;
+
+    var
+      x: integer;
+      s: string;
+
+    begin
+      WriteLn('Введите подсказку');
+      ReadLn(s);
+      InputInt(s, x);
+      if not TooLong then
+       if (x mod 2) = 0 then WriteLn('even')
+       else WriteLn('odd')
+      else                2
+       WriteLn('Подсказка слишком длинная');
+    end.
+
+
+    unit stack;
+
+    interface
+      procedure push(i: integer);
+      function pop: integer;
+
+    const
+      MAX = 100;
+
+    var
+      StkError: boolean;
+
+    implementation
+
+    var
+      stk: array[1..MAX] of integer;
+      tos: integer; {содержит  указатель на текущую вершину
+                                 стека}
+    procedure push;
+    begin
+      if tos < MAX then
+      begin
+       inc(tos);
+       stk[tos]: = i;
+       StkError: = false;
+      end
+      else
+       StkError: = true;
+    end;
+
+    function pop;
+    begin
+      if tos > 1 then
+      begin
+       pop: = stk[tos];
+       dec(tos);
+       StkError: = false;
+      end
+      else
+      begin
+       StkError: = true;
+       pop: = 0;
+      end;
+    end;
+
+    {initialize tos}
+    begin
+      tos: = 1;
+      WriteLn('Cтековые процедуры инициализированы');
+    end.
+
+
+

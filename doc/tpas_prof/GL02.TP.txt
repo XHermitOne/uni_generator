@@ -1,0 +1,1153 @@
+     const
+       MAX_EVENT = 100;
+
+     type
+       EvtType = string[80];
+       var
+         event: array[1..MAX_EVENT] of EvtType;
+         spos, rpos: integer;
+
+       {добавить в очередь}
+       procedure Qstore(q:EvtType);
+       begin
+         if spos=MAX_EVENT then
+           WriteLn('List full')
+         else
+         begin
+           event[spos]:=q;
+           spos:=spos+1;
+         end;
+     end; {конец процедуры постановки в очередь}
+
+     { выборка объекта из очереди }
+     function Qretrieve:EvtType;
+     begin
+       if rpos=spos then
+       begin
+         WriteLn('No appointments scheduled.');
+         Qretrieve := '';
+       end else
+       begin
+         rpos:=rpos+1;
+         Qretrieve := event[rpos-1];
+       end;
+     end; { конец процедуры выборки из очереди }
+-----------------------------------------------------------------
+
+
+     { простое  планирование предписаниями }
+     procram MiniScheduler;
+
+     uses Grt;
+
+     const
+       MAX_EVENT = 100;
+
+     type
+       EvtType = string[80];
+
+     var
+       event: array[1..MAX_EVENT] of EvtType;
+       spos, rpos, t: integer;
+       ch:char;
+       done:boolean;
+
+     { добавить в очередь }
+     procedure Qstore(q:EvtType);
+     begin
+       if spos=MAX_EVENT then
+         WriteLn('List full')
+       else
+       begin
+         event[spos] := q;
+         spos := spos+1;
+       end;
+     end; { конец процедуры постановки в очередь }
+
+     { выборка объекта из очереди }
+     function Qretrieve:EvtType;
+     begin
+       if rpos=spos then
+       begin
+         WriteLn('No appointments scheduled.);
+         Qretrieve := '';
+       end else
+             begin
+               rpos := rpos+1;
+               Qretrieve := event[rpos-1];
+             end;
+           end; { конец функции выборки элемента  из  очереди }
+-----------------------------------------------------------------
+
+          { ввести предписание в планировщик }
+
+     procedure Enter;
+     var
+       s: string[80];
+
+     begin
+       repeat
+         Write('Enter appointment',spos+1, ':');
+         ReadLn(s);
+         WriteLn;
+         if Length(s)<>0 then Qstore(s);
+       until Length(s)=0;
+     end; { конец процедуры ввода }
+
+     { вывести предписание }
+     procedure Review;
+     var
+       t: integer;
+     begin
+       for t:=rpos to spos-1 do WriteLn(t+1,':',event[t]);
+     end; { конец процедуры вывода }
+
+     { активизировать предписание }
+     procedure Periorm;
+     var
+       s:string[80];
+     begin
+       s:=Qretrieve;  { получить следующее предписание }
+       if Length(s)<>0 then WriteLn(s);
+     end; { конец процедуры   активизации   предписаний }
+
+     begin  { начало планировщика }
+       for t:= 1 to MAX_EVENT do event[t]:=''; { инициализация
+            событий}
+       spos:=0; rpos:=0; done:=FALSE;
+
+       repeat
+         Write('Enter,Review, Pertorm,Quit: ');
+         ch:= ReadKey;
+         WriteLn;
+         Case upcase(ch) of
+           'E':Enter;
+           'R':Review;
+           'P':Perform;
+           'Q':done:=TRUE;
+         end;
+       until done=TRUE;
+     end.
+-----------------------------------------------------------------
+
+     procedure Qstore(q: EvtType);
+     begin
+       { убедитесь,  что  имеется  свободное место в очереди }
+       if ((spos+1=rpos) or ((spos=MAX_EVENT) AND (rpos=0))then
+             WriteLn('List full')
+       else
+       begin
+         event[spos] := q;
+         spos := spos+1;
+         if spos=MAX_EVENT then spos:=1; { возврат в начало }
+         end;
+     end; { конец процедуры постановки в очередь }
+
+     function Qretrieve:EvtType;
+     begin
+       if rpos=MAX_EVENT then rpos:=1; { возврат в начало }
+       else rpos:=rpos+1;
+
+       if rpos=spos then
+       begin
+         WriteLn('Queue empty');
+         Qretrieve:=';';
+       end else
+         Qretrieve:=event[rpos-1];
+     end; { конец функции выборки из очереди }
+
+-----------------------------------------------------------------
+
+    { программа, иллюстрирующая применение циклической очереди }
+     program KeyBuffer;
+
+     uses Crt, Dos;
+
+     const
+        MAX_EVENT = 10;
+
+     type
+       EvtType = char;
+
+     var
+       event: array[1..MAX_EVENT] of EvtType;
+       spos, rpos, t: integer;
+       ch: char;
+
+     { поместить объект в очередь }
+     procedure Qstore(q:EvtType);
+     begin
+     2 { убедиться,  что в очереди имеется свободное место}
+       if ((spos+1=rpos) or ((spos=MAX_EVENT) AND (rpos=0))then
+           WriteLn('List full')
+       else
+       begin
+         event[spos]:=q;
+         spos:=spos+1;
+         if spos=MAX_EVENT then spos:=1; { вернуться в начало
+                          очереди }
+       end;
+     end; { конец процедуры  постановки в очередь }
+-----------------------------------------------------------------
+
+    { выборка объекта из очереди }
+     function Qretrieve:EvtType;
+     begin
+       if rpos=MAX_EVENT then rpos:=1; { вернуться в начало
+                   очереди }
+        else rpos:=rpos+1;
+
+       if rpos=spos then
+       begin
+         WriteLn('Queue empty');
+         Qretrieve:=';';
+       end else
+       begin
+         Qretrieve:= event[rpos-1];
+       end;
+     end; { конец функции выборки объекта из очереди  }
+-----------------------------------------------------------------
+
+     begin  { буфер набранных  с  помощью клавиатуры символов }
+       spos := 0;
+       rpos := MAX_EVENT;
+        { установить переменную "ch" на начальное значение,
+                  отличное от точки с запятой }
+
+       ch:=' ';
+       t := 1;
+       repeat
+         if KeyPressed then
+         begin
+           ch := ReadKey;
+           Qstore(ch);
+         end;
+         t:=t+1;
+         write(t); write(' ');
+       until (t=32000) or (ch=';');
+
+{ вывести  содержимое буфера введенных с клавиатуры символов }
+       repeat
+         ch:=Qretrieve;
+         if ch<>';' then Write(ch);
+       until ch = ';';
+     end.
+-----------------------------------------------------------------
+
+     const
+       MAX = 100;
+
+     var
+       stack:array[1..100] of integer;
+       tos:integer; {points to top of stask}
+
+     { помещение объекта в стек }
+     procedure Push(i:integer);
+     begin
+       if tos>=MAX then WriteLn('Stask full')
+       else
+       begin
+         stack[tos]:=i;
+         tos:=tos+1;
+       end;
+     end; { конец  процедуры  помещения объекта в стек}
+
+     { выборка объекта из стека }
+     function Pop:integer;
+
+     begin
+       tos:=tos-1;
+       if tos<1 then
+       begin
+         WriteLn('Stack underflow');
+         tos:=tos+1;
+         Pop:=0;
+       end
+       else Pop := stack[tos];
+     end; { конец функции выборки объекта из стека }
+
+-----------------------------------------------------------------
+
+    { калькулятор с четырьмя операциями, иллюстрирующий работу }
+      program four_function_calc;
+     const
+       MAX = 100;
+
+     var
+           stack:array [1..100] of integer;
+           tos:integer; { указатель вершины стека }
+           a, b:integer;
+           s:string[80];
+
+         { поместить объект в стек }
+          procedure Push(i:integer);
+          begin
+            if tos >= MAX then Writeln('Stack full')
+            else
+            begin
+              stack[tos] :=1;
+              tos := tos+1;
+            end;
+          end;{Push}
+
+         { выборка объекта из стека }
+         function Pop:integer;
+         begin
+           tos := tos-1;
+           if tos < 1 then
+           begin
+            Writeln('Stack underflow')
+            tos := tos+1;
+            Pop := 0;
+           end
+            else Pop := stack[tos];
+         end;{ Pop }
+
+         begin { калькулятор }
+           tos := 1;
+           Writeln('For Function Calculator');
+           repeat
+             Write(': '); { вывод приглашения }
+             Readln(s);
+             Val(s, a, b) { преобразование строки символов в
+           целое число }
+
+        {  считается, что при успешном преобразовании
+           пользователь ввел число, а в противном
+              случае пользователь ввел оператор}
+           if (b=0) and ((Length(s)>1) or (s[1]<>'-')) then
+           Push(a)
+           else
+             case s[1] of
+               '+' begin
+                     a := Pop
+                     b := Pop
+                     Writeln(a+b);
+                     Push(a+b);
+                   end;
+               '-' begin
+                     a := Pop
+                     b := Pop
+                     Writeln(b+a);
+                     Push(b+a);
+                   end;
+               '*' begin
+                     a := Pop
+                     b := Pop
+                     Writeln(a*b);
+                     Push(a*b);
+                   end;
+               '/' begin
+                     a := Pop
+                     b := Pop
+                     if a=0 then Writeln('divide by zero');
+                     else
+                       begin
+                         Writeln(b div a);
+                         Push(b div a);
+                       end;
+                    end;
+               '.' begin
+                     a := Pop
+                     Writeln(a);
+                     Push(a);
+                   end;
+                 end;
+              until UpCase(s[1])='G'
+           end.
+-----------------------------------------------------------------
+     AddrPointer = ^address;
+     address = record
+       name:   string[30];
+       street: string[40];
+       city:   string[20];
+          state: string[2];
+          zip:   string[9];
+          next:  AddrPointer;  { указатель на следующую запись  }
+       end;
+
+       DataItem = address;
+
+     var
+       start.last: AddrPointer;
+-----------------------------------------------------------------
+     { добавление  в  список с одной связью }
+     procedure SL_Store(i: AddrPointer);
+     Legin
+       if last=nil then  { первый элемент списка } 2
+       begin
+         last := i;
+         start := i;
+         i^.next := nil;
+       end else
+       begin
+         last^.next := i;
+         i^.next := nil;
+         last := i;
+       end;
+     end;  { конец процедуры добавления элементов в список с
+                        одной связью }
+
+-----------------------------------------------------------------
+     { добавление  в  список с одной связью }
+     procedure SL_Store(i: AddrPointer);
+     Legin
+       if last=nil then  { первый элемент списка } 2
+       begin
+         last := i;
+         start := i;
+         i^.next := nil;
+       end else
+       begin
+         last^.next := i;
+         i^.next := nil;
+         last := i;
+       end;
+     end;  { конец процедуры добавления элементов в список с
+                        одной связью }
+
+-----------------------------------------------------------------
+  { добавление элементов в список с одной связью с сохранением
+                упорядоченности }
+      function SLS_Store(info, start: AddrPointer;
+                        var last: AddrPointer): AddrPointer;
+     var
+       old, top: AddrPointer;
+       done: boolean;
+     begin
+       top := start;
+       old := nil;
+       done := FALSE;
+
+       if start=nil then
+       begin { первый элемент списка }
+         info^.next:=nil;
+         last:=info;
+         SLS_Store:=info;
+       end else
+       begin
+         while (start<>nil) and (not done) do
+       begin
+         if start^.name < info^.name then
+         begin
+           old:=start;
+           start:=start^.next;
+         end else
+         begin { вставка в середину }
+           if old<>nil then
+
+          begin
+            old^.next:=info;
+            info^.next:=start;
+            SLS_Store:=top; { сохранить начало  }
+            done:=TRUE;
+          end else
+          begin
+            info^.next:=start; { новый первый элемент }
+            SLS_Store:=info;
+            done:=TRUE;
+          end;
+        end;
+       end; {while}
+       if not done then
+       begin
+         last^.next:=info; { вставка в конец }
+         info^.next:=nil;
+         last:=info;
+         SLS_Store:=top;
+       end;
+      end;
+     end;
+{ конец процедуры упорядоченной вставки в список с одной связью}
+
+-----------------------------------------------------------------
+     procedure Display(start: AddrPointer);
+     begin
+       while start<>nil do begin
+         WriteLn(start^.name);
+         start:=start^.next;
+       end;
+     end;  { конец процедуры вывода}
+
+-----------------------------------------------------------------
+    function Search(start:AddrPointer;name:str80):AddrPointer;
+    var
+      done:boolean;
+    begin
+      done := FALSE;
+      while (start<>nil) and (not done) do
+    begin
+      if name=start^.name then
+      begin
+        Search:=start;
+        done:=TRUE;
+      end else
+        start:=start^.next;
+      end;
+      if start=nil then Search := nil; { нет в списке }
+    end; { конец процедуры поиска элемента }
+
+-----------------------------------------------------------------
+       name :  string[30];
+       street: string[40];
+       city:   string[20];
+       state:  string[2];
+       zip:    string[9];
+       next:   AddrPointer; { указатель на следующую запись  }
+       prior:  AddrPointer; { указатель на предыдущую запись }
+        end;
+
+       DataItem = address;
+       DataArray = array [1..100] of AddrPointer;
+
+     {добавление элементов в список с двойной связью }
+     procedure DL_Store(i: AddrPointer);
+     begin
+       if last=nil then { первый элемент списка }
+       begin
+         last:=i;
+         start:=i;
+         i^.next:=nil;
+         i^.prior:=nil;
+       end
+       else
+       begin
+         last^.next:=i;
+         i^.next:=nil;
+         i^.prior:=last;
+         last:=i;
+       end;
+     end; { конец функции добавления в список с двойной связью }
+
+
+-----------------------------------------------------------------
+ {упорядоченная установка элементов в список с двойной связью}
+           function DSL_Store(info, start: AddrPointer;
+                              var last: AddrPointer): AddrPointer;
+  { вставка элементов в соответствующее место с сохранением
+                      порядка }
+           var
+             old, top: AddrPointer;
+             done: boolean;
+           begin
+             top := start;
+             old := nil;
+             done := FALSE;
+
+             if start = nil then begin { первый элемент списка }
+               info^.next := nil;
+               last := info;
+               info^.prior :=nil;
+               DCL_Store := info;
+             end else
+             begin
+               while (start<>nil) and (not done) do
+               begin
+                 if start^.name < info^.name then
+                 begin
+                   old := start;
+                   start := start^.next;
+                 end else
+                 begin { вставка в середину }
+                   if old <>nil then
+                     begin
+                     old^.next := info;
+                     info^.next := start;
+                     start^.prior := info;
+                     info^.prior := old;
+                     DSL_Store := top; { сохранение начала }
+                     done := TRUE;
+                   end else
+                   begin
+                     info^.next := start;{новый первый элемент }
+                     info^.prior := nil;
+                     DSL_Store := info;
+                     done := TRUE;
+                   end;
+                 end;
+               end;  { конец цикла }
+               if not done then begin
+                 last^.next := info;
+                 info^.next := nil;
+                 info^.prior := last;
+                 last := info;
+                 DSL_Store := top; { сохранение начала }
+               end;
+             end;
+           end;  { конец функции DSL_Store }
+
+
+-----------------------------------------------------------------
+    { удаление элемента из списка с двойной связью }
+     function DL_Delete(start: AddrPointer;
+                        key: str80): AddrPointer;
+     var
+       temp, temp2: AddrPointer;
+       done: boolean;
+     begin
+       if start^.name=key then begin { первый элемент списка}
+         DL_Delete:=start^.next;
+         if temp^.next <> nil then
+         begin
+           temp := start^.next;
+           temp^.prior := nil;
+         end;
+         dispose(start);
+       end else
+       begin
+         done := FALSE;
+         temp := start^.next;
+         temp2 := start;
+         while (temp<>nil) and (not done) do
+         begin
+           if temp^.name=key then
+           begin
+             temp^.next:=temp^.next;
+
+
+           if temp^.next<>nil then
+             temp^.next^.prior:=temp2;
+           done:=TRUE;
+           dispose(temp);
+         end else
+         begin
+           temp2:=temp;
+           temp:=temp^.next;
+         end;
+       end;
+       DL_Delete:=start; { начало не изменяется }
+       if not done then WriteLn('not found');
+     end;
+   end; { конец функции удаления элемента
+            из списка с двойной связью }
+
+-----------------------------------------------------------------
+    { удаление элемента из списка с двойной связью }
+     function DL_Delete(start: AddrPointer;
+                        key: str80): AddrPointer;
+     var
+       temp, temp2: AddrPointer;
+       done: boolean;
+     begin
+       if start^.name=key then begin { первый элемент списка}
+         DL_Delete:=start^.next;
+         if temp^.next <> nil then
+         begin
+           temp := start^.next;
+           temp^.prior := nil;
+         end;
+         dispose(start);
+       end else
+       begin
+         done := FALSE;
+         temp := start^.next;
+         temp2 := start;
+         while (temp<>nil) and (not done) do
+         begin
+           if temp^.name=key then
+           begin
+             temp^.next:=temp^.next;
+
+
+           if temp^.next<>nil then
+             temp^.next^.prior:=temp2;
+           done:=TRUE;
+           dispose(temp);
+         end else
+         begin
+           temp2:=temp;
+           temp:=temp^.next;
+         end;
+       end;
+       DL_Delete:=start; { начало не изменяется }
+       if not done then WriteLn('not found');
+     end;
+   end; { конец функции удаления элемента
+            из списка с двойной связью }
+
+-----------------------------------------------------------------
+    {простая  программа для списка адресов почтовых корреспон-
+    денций, иллюстрирующая применение списков с двойной связью}
+   program mailing_list;
+
+     type
+       str80 = string[80];
+       AddrPointer = -address;
+       address = record
+         name: string[30];
+         street: string[40];
+         city: string[20];
+         state: string[2];
+         zip: string[9];
+         next: AddrPointer;  { указатель  на следующую запись }
+         prior: AddrPointer; { указатель на предыдущую запись }
+       end;
+
+       DataItem = address;
+       filtype = file of address;
+
+     var
+       t, t2: integer;
+       mlist: FilType;
+       start, last: AddrPointer;
+       done: boolean;
+
+     { вызов меню }
+     function MenuSelect: char;
+     var
+       ch: char;
+           begin
+             Writeln('1. Enter names');
+             Writeln('2. Delete a name');
+             Writeln('3. Display the list');
+             Writeln('4. Search for a name');
+             Writeln('5. Save the list');
+             Writeln('6. Load the list');
+             Writeln('7. Quit');
+             repeat
+               Writeln;
+               Write('Enter your choice: ');
+               Readln(ch);
+               ch := UpCase(ch);
+             until (ch>='1') and (ch<='7')
+             MenuSelect := ch;
+             end;{ конец выбора по меню }
+
+{ упорядоченная установка элементов в список с двойной связью }
+           function DSL_Store(info, start: AddrPointer;
+                              var last: AddrPointer): AddrPointer;
+  { вставка элементов в соответствующее место с сохранением
+                      порядка }
+           var
+             old, top: AddrPointer;
+             done: boolean;
+           begin
+             top := start;
+             old := nil;
+             done := FALSE;
+
+             if start = nil then begin { первый элемент списка }
+               info^.next := nil;
+               last := info;
+               info^.prior :=nil;
+               DSL_Store := info;
+             end else
+             begin
+               while (start<>nil) and (not done) do
+               begin
+                 if start^.name < info^.name then
+                 begin
+                   old := start;
+                   start := start^.next;
+                 end else
+                 begin { вставка в середину }
+                   if old <>nil then
+                     begin
+                     old^.next := info;
+                     info^.next := start;
+                     start^.prior := info;
+                     info^.prior := old;
+                     DSL_Store := top; { сохранение начала }
+                     done := TRUE;
+                   end else
+                   begin
+                     info^.next := start;{новый первый элемент }
+                     info^.prior := nil;
+                     DSL_Store := info;
+                     done := TRUE;
+                   end;
+                 end;
+               end;  { конец цикла }
+               if not done then begin
+                 last^.next := info;
+                 info^.next := nil;
+                 info^.prior := last;
+                 last := info;
+                 DSL_Store := top; { сохранение начала }
+               end;
+             end;
+           end;  { конец функции DSL_Store }
+
+        { удалить элемент из списка с двойной связью }
+           function DL_Delete(start: AddrPointer
+                              key: str[80]): AddrPointer
+           var
+             temp, temp2: AddrPointer
+             done: boolean;
+           begin
+             if star^.name = key then begin { первый элемент
+           списка }
+              DL_Delete := start^.next;
+              if temp^.next <> nil then
+              begin
+                temp := start^.next;
+                temp^.prior := nil;
+              end;
+              dispose(start);
+           end else
+           begin
+             done := FALSE;
+             temp := start^.next;
+             temp2 := start;
+             while (temp <> nil) and (not done) do
+             begin
+               if temp^.next <> nil then
+                  temp^.next^.prior := temp2
+                  done := TRUE
+                  dispose(temp);
+             end else
+               begin
+                 temp2 := temp;
+                 temp := temp^.next;
+               end;
+             end;
+             DL_Delete := start; { начало не изменяется }
+             if not done then Writeln('not found');
+           end;
+         end; { конец функции DL_Delete }
+
+          { удаление адреса из списка }
+           procedure remove;
+           var
+             name:str80;
+           begin
+             Writeln('Enter name to delete: ');
+             Readln(name);
+             start := DL_Delete(start,name);
+           end;  { конец процедуры удаления адреса из списка }
+
+           procedure Enter;
+           var
+             info: AddrPointer;
+             done: boolean;
+           begin
+             done := FALSE;
+             repeat
+             new(info)  { получить новую запись }
+             Write('Enter name: ');
+             Readln(info^.name);
+             if Length(info^.name)=0 then done := TRUE
+             else
+             begin
+               Write(Enter street: ');
+               Readln(info.street);
+               Write(Enter city: ');
+               Readln(info.city);
+               Write(Enter state: ');
+               Readln(info.state);
+               Write(Enter zip: ');
+               Readln(info.zip);
+               start := DSL_Store(info, start, last); { вставить
+           запись }
+             end;
+           until done;
+         end;  { конец ввода }
+
+           { вывести список }
+           procedure Display(start:AddrPointer);
+           begin
+             while start <> nil do begin
+               Writeln(start^.name);
+               Writeln(start^.street);
+               Writeln(start^.city);
+               Writeln(start^.state);
+               Writeln(start^.zip);
+               start := start^.next
+               Writeln;
+             end;
+           end;
+
+          { найти элемент с адресом }
+           function Search(start: AddrPointer; name: str80):
+                          AddrPointer;
+           var
+             done: boolean;
+           begin
+             done := FALSE
+             while (start <> nil) and (not done) do begin
+               if name = start^.name then begin
+                 search := start;
+                 done := TRUE;
+               end else
+               start := star^.next;
+             end;
+             if start = nil then search := nil; { нет в списке }
+           end; { конец поиска }
+
+           { найти адрес по фамилии }
+           procedure Find;
+           var
+             loc: Addrpointer;
+             name: str80;
+           begin
+             Write('Enter name to find: ');
+             Readln(name);
+             loc := Search(start, name);
+             if loc <> nil then
+             begin
+               Writeln(loc^.name);
+               Writeln(loc^.street);
+               Writeln(loc^.city);
+               Writeln(loc^.state);
+               Writeln(loc^.zip);
+             end;
+             else Writeln('not in list')
+              Writeln;
+           end; { Find }
+
+           { записать список на диск }
+           procedure Save(var f:FilType; start: AddrPointer):
+           begin
+             Writeln('saving file');
+             Rewrite(f);
+             while start <> nil do begin
+             write(f,start);
+             start := start^.next;
+             end;
+          end;
+                       { загрузить список с файла }
+           procedure Load(var f:FilType; start: AddrPointer):
+                        AddrPointer;
+           var
+             temp, temp2: AddrPointer
+             first: boolean;
+           begin
+             Writeln('load file');
+             Reset(f);
+             while start <> nil do begin  { освобождение памяти
+                                           при необходимости }
+               temp := start^.next
+               dispose(start);
+               start := temp;
+             end;
+
+             start := nil; last := nil;
+             if not eof(f) then begin
+               New(temp);
+               Read(i, temp^);
+               temp^.next := nil;  temp^.prior:= nil;
+               load := temp;  { указатель на начало списка }
+             end;
+
+               while not eof(f) do begin
+                 New(temp2);
+                 Read(i, temp2^);
+                 temp^.next := temp2; { построить список }
+                 temp2^.next := nil;
+                 temp^.prior := temp2;
+                 temp := temp2;
+               end;
+               last := temp2;
+             end; { конец загрузки }
+
+             begin
+               start := nil; { сначала список пустой }
+               last := nil;
+               done := FALSE;
+
+               Assign(mlist, 'mlistd.dat');
+
+               repeat
+                 case MenuSelect of
+                   '1': Enter;
+                   '2': Remove;
+                   '3': Display(start);
+                   '4': Find;
+                   '5': Save(mlist, start);
+                   '6': start := Load(mlist, start);
+                   '7': done := TRUE;
+                 end;
+               until done=TRUE;
+           end. { конец программы }
+
+
+-----------------------------------------------------------------
+     type
+       TreePointer = ^tree;
+       tree = record
+         data: char;
+         left: TreePointer;
+         right:TreePointer;
+       end;
+
+     { добавить элемент в двоичное дерево }
+     function Stree(root,r:TreePointer;data:char);TreePointer;
+     begin
+       if r=nil then
+       begin
+         new(r); { получить новую вершину }
+         r^.left:=nil;
+         r^right:=nil;
+         r^.data:=data;
+         if data<root^.data then root^.left:=r
+         else root^.right:=r;
+         STree:=r;
+       end else
+       begin
+         if data<r^.data then STree:=STree(r, r^.left, data)
+         else STree:=STree(r, r^.right, data);
+       end;
+     end; { конец функции добавления элемента в двоичное
+                         дерево }
+
+
+------------------------------------------------------------------
+     procedure InOrder(root:TreePointer);
+     begin
+       if root<>nil then
+       begin
+       InOrder(root^.left);
+       Write(root^.data);
+       InOrder(root^.right);
+     end;
+   end.
+
+-----------------------------------------------------------------
+
+     procedure PreOrder(root:TreePointer);
+     begin
+       if root<>nil then
+       begin
+         write(root^.data);
+         preorder(root^.left);
+         preorder(root^.right);
+       end;
+     end.
+
+     procedure PostOrder(root:TreePointer);
+     begin
+       if root<>nil then
+       begin
+         postorder(root^.left);
+         postorder(root^.right);
+         Write(root^.data);
+       end;
+     end.
+
+------------------------------------------------------------------
+
+  { вывод на экран вершин дерева /слева направо/ }
+        programm DisplayTree;
+
+        uses Crt;
+
+        type
+          TreePointer = ^tree
+          tree = record
+            data: char;
+            left: TreePointer;
+            right: TreePointer;
+            end;
+        var
+          root, dummy: TreePointer;
+          ch:char;
+
+        function STree(root, r:TreePointer; data: char):
+                 TreePointer;
+        begin
+          if r = nil then
+          begin
+            new(r); { получить новую вершину }
+            r^.left := nil;
+            r^.right := nil;
+            r^.data := data;
+            if data < root^.data then root^.left := r
+            else root^.right := r;
+           STree := r;
+         end else
+         begin
+           if data<r^.data then STree := STree(r, r^.left, data)
+           else STree := STree(r, r^.right, data)
+         end;
+        end; { конец процедуры STree }
+
+        procedure PrintTree(r: TreePointer; n: integer);
+        var
+          i:integer;
+        begin
+          if r<>nil then begin
+             PrintTree(r.^left, n+1);
+             for i := 1 to n do Write('   ');
+             Writeln(r^.data);
+             PrintTree(r^.right, n+1);
+           end;
+        end; { конец процедуры PrintTree }
+
+        begin
+          root := nil;
+          repeat
+            Write('enter a letter (Q to quit): ');
+            ch := ReadKey; Writeln(ch);
+            if root= nil then root := STree(root, root, ch)
+            else dummy := STree(root, root, ch);
+            ch := UpCase(ch);
+         until ch ='Q';
+
+        PrintTree(root, 0);
+      end;
+
+-----------------------------------------------------------------
+     { поиск элемента в дереве }
+    function Search(root:TreePointer;
+                    key:DataItem):TreePointer;
+
+    begin
+      if root <> nil
+      begin
+        while (root^.data <> key) and (root <> nil) do
+        begin
+          if key < root^.data then root := root^.left
+          else root := root^.right;
+        end;
+        end;
+       Search := root;
+    end; { конец процедуры поиска элемента }
+
+
+-----------------------------------------------------------------
+
+           { удаление элемента из дерева }
+          function DTree(root:TreePointer;key:char):TreePointer;
+          var
+            temp,temp2:TreePointer;
+
+         begin
+           if root^.data = key then
+           begin
+             if root^.left=root^.right tnen
+             begin
+               dispose(root)
+               DTree := nil;
+             end
+             else  if root^.left=nil tnen
+             begin
+               temp := root^.right
+               dispose(root)
+               DTree := temp;
+             end
+             else  if root^.right=nil tnen
+             begin
+               temp := root^.left
+               dispose(root)
+               DTree := temp;
+             end
+             else
+             begin  { имеются два листа }
+               temp2 := root^.right
+               temp := root^.right
+               while temp^.left <> nil do temp := temp^.left;
+               temp^.left := root^.left
+               dispose(root);
+               DTree := temp2
+             end;
+             else
+             begin
+               if root^.data < key
+               then root^.right :=  DTree(root^.right, key)
+               else root^.left :=  DTree(root^.left, key)
+               DTree := root;
+             end;
+           end; { конец функции DTree }
+
+
+

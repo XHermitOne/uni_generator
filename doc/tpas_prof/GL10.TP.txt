@@ -1,0 +1,300 @@
+-----------------------------------------------------------------
+    program simple_graphics;
+
+    {Si typedef.sys}
+    {Si graphix.sys}
+    {Si kernel.sys}
+
+    var
+      radius: real;
+      i:integer;
+
+    begin
+      InitGraphic;
+      DefineWorld(1, 0, 0, 1000, 1000);
+      SelectWorld(1);
+      SelectWindom(1);
+      DrawBorder; {установить границу вокруг окна }
+
+      SetAspect(1);
+
+      radius: = 0.05;
+
+      for i: = 1 to 10 do
+      begin
+       DrawCircle(500,500,radius);
+       radius: = radius + 0.2;
+      end;
+      repeat until KeyPressed;
+      ReadLn;
+      DrawSguare(100, 100, 900, 900, false);
+      DrawSguare(400, 400, 600, 600, false);
+      repeat until KeyPressed;
+      ReadLn;
+      DrawLine(0, 0, 1000, 1000);
+      repeat until KeyPressed;
+      LeaveGraphic;
+    end.
+-----------------------------------------------------------------
+    program text_graphics;
+
+    {Si typedef.sys}
+    {Si graphix.sys}
+    {Si kernel.sys}
+
+    var
+      i:integer;
+
+    begin
+      InitGraphic;
+      DefineWorld(1, 0, 0, 1000, 1000);
+      SelectWorld(1);
+      SelectWindom(1);
+      DrawBorder;
+
+      for i: = 1 to 6 do
+      begin
+       DrawTextW(10, i*140, i, 'Это       тест')
+      end;
+      repeat until KeyPressed;
+      LeaveGraphic;
+    end.
+
+-----------------------------------------------------------------
+    program One_Window;
+
+    {Si typedef.sys}
+    {Si graphix.sys}
+    {Si kernel.sys}
+
+    var
+      i:integer;
+
+    begin
+      InitGraphic;
+      DefineWorld(1, 0, 0, 1000, 1000);
+      DefineWindow(1, 20, 20, 40, 100);
+      DefineHeader(1, 'Заголовок');
+      SetHeaderOn;
+      SekectWorld(1);
+      SekectWindow(1);
+      DrawBorder;
+      repeat until KeyPressed;
+      LeaveGraphic;
+    end.
+
+-----------------------------------------------------------------
+    program Windows;
+
+    {Si typedef.sys}
+    {Si graphix.sys}
+    {Si kernel.sys}
+    {Si windows.sys}
+
+    var
+      i: integer;
+
+    procedure SetUpWindow;
+    begin
+
+      DefineWindow(1, 0, 0, 20, 100);
+      DefineHeader(1, 'Sguare');
+      DefineWorld(1, 0, 0, 400, 400);
+      SelectWorld(1);
+      SelectWindow(1);
+      SetHeaderOn;
+      SetBackground(0);
+      DrawBorder;
+
+      DefineWindow(2, 20, 40, 40, 140);
+      DefineHeader(2, 'Zoom in a little');
+      DefineWorld(2, 0, 0, 200, 200);
+      SelectWorld(2);
+      SekectWindow(2);
+      SetHeaderOn;
+      SetBackground(0);
+      DrawBorder;
+
+      DefineWindow(3, 40, 80, 60, 180);
+      DefineHeader(3, 'Ah...much clearer');
+      DefineWorld(3, 0, 0, 100, 100);
+      SekectWorld(3);
+      SelectWindow(3);
+      SetHeaderOn;
+      SetBackground(0);
+      DrawBorder;
+    end;
+
+    begin
+      InitGraphic;
+      SetUpWindow;
+
+      {появиться для увеличения в углу}
+      for i: = 1 to 3 do
+      begin
+       SelectWorld(1);
+       SelectWindow(1);
+       DrawSguare(10, 10, 120, 120, false);
+       DrawLine(10, 10, 20, 20);
+      end;
+      repeat until KeyPressed;
+      LeaveGraphic;
+    end.
+
+
+-----------------------------------------------------------------
+    procedure PlotPie;
+    var
+      Radius, Theta, InRad, OuterRad: real;
+      Mode, Size: integer;
+      Products: PieArray;
+
+    begin
+      DefineWindow(1, 0, 0, 50, 100);
+      DefineHeader(1, 'Exports in Billions');
+      DefineWorld(1, 0, 0, 1000, 1000);
+      SelectWorld(1);
+      SelectWindow(1);
+      SetHeaderOn;
+      DrawBorder;
+
+      Products[1].Text: = 'Wheat S';
+      Products[2].Text: = 'Corn S';
+      Products[3].Text: = 'Manu. Goods S';
+      Products[4].Text: = 'Electronics S';
+      Products[5].Text: = 'Misc. S';
+      Products[1].Area: = 15;
+      Products[2].Area: = 12.4;
+      Products[3].Area: = 7.34;
+      Products[4].Area: = -24; {вытолкнуть}
+      Products[5].Area: = 16;
+      Radius: = 125;
+      Theta: = 60;
+
+      SetAspect(1.0);
+
+      InRad: = 0.85;
+      DuterRad: = 1.5;
+
+      Mode: = 2; {установить рисование обеих меток}
+      Size: = 1; {установить малый размер текста}
+
+      DrawPolarPie(500, 500, Radius, Theta, InRad,
+                 OuterRad, Products, 5, Mode, Size);
+    end; {PlotPie}
+
+-----------------------------------------------------------------
+    procedure PlotBar;
+    var
+      Products: PlotArray;
+    begin
+      DefineWindow(2, 40, 110, 70, 180);
+      DefineHeader(2, 'Exports in Billions');
+
+      DefineWorld(2, 0, 0, 30, 35);
+      SelectWorld(2);
+      SelectWindow(2);
+      SetHeaderOn;
+      SetBackground(0);
+      DrawBorder;
+
+      Products[1,2]: = 15;
+      Products[2,2]: = 12.4;
+      Products[3,2]: = 7.34;
+      Products[4,2]: = 24;
+      Products[5,2]: = 16;
+
+      DrawHistogram(Products, 5, true, 5);
+      DrawTextW(1, 2, 1, 'Wheat   Corn  Manu. Elec. Misc.');
+      DrawTextW(1, 7, 1, 'S15     S12.4 S7.34 S24   S16');
+    end; {PlotBar}
+
+-----------------------------------------------------------------
+     program Presentation_graphics;
+
+     {Si typedef.sys}
+     {Si graphix.sys}
+     {Si kernel.sys}
+     {Si circsegm.hgh}
+     {Si pie.hgh}
+     {Si hatch.hgh}
+     {Si histogrm.hgh}
+
+     procedure PlotPie;
+     var
+       Radius, Theta, InRad, OuterRad: real;
+       Mode, Size: integer;
+       Products: PieArray;
+     begin
+       ClearScreen;
+       SetColorWhite;
+       DefineWindom(1, 0, 0, 50, 100);
+       DefineHeader(1, 'Exports in Billions');
+       DefineWorld(1, 0, 0, 1000, 1000);
+       SelectWorld(1);
+       SelectWindom(1);
+       SetHeaderOn;
+       SetBackground(0);
+       DrawBorder;
+       Products[1].Text:='Wheat S';
+       Products[2].Text:='Corn S';
+       Products[3].Text:='Manu. Goods S';
+       Products[4].Text:='Electronics S';
+       Products[5].Text:='Mics. S';
+       Products[1].Area:=15;
+       Products[2].Area:=12.4;
+       Products[3].Area:=7.34;
+       Products[4].Area:=-24; {вытолкнуть}
+       Products[5].Area:=16;
+
+       Radius: = 125;
+       Theta: = 60;
+
+       SetAspect(1.0);
+
+       InRad: = 0.85;
+       OuterRad: = 1.5;
+
+       Mode:=2; {установить рисование обеих меток}
+       Size:=1; { установить малый размер текста }
+
+       DrawPolarPie(500, 500, Radius, Thete, InRad,
+                  OuterRad,Products, 5,Mode, Size);
+     end; {PlotPie}
+
+     procedure PlotBar;
+     var
+       Products: PlotArray;
+     begin
+       DefineWindow(2, 40, 110, 70, 180);
+       DefineHeader(2, 'Exports in Billions');
+       DefineWorld(2, 0, 0, 30, 35); 1
+       SelectWorld(2);
+       SelectWindow(2);
+       SetHeaderOn;
+       SetBackground(0);
+       DrawBorder;
+
+       Products[1,2]: = 15;
+       Products[2,2]: = 12.4;
+       Products[3,2]: = 7.34;
+       Products[4,2]: = 24;
+       Products[5,2]: = 16;
+
+       DrawHistogram(Products, 5, true, 5);
+       DrawTextW(1, 2, 1, 'Wheat  Corn  Manu. Elet. Mias.');
+       DarwTextW(1, 7, 1,  S15         S12.4 S7.34 S24   S16');
+     end; {PlotBar}
+
+     begin
+       InitGraphic;
+       PlotPie;
+       PlotBar;
+       repeat untei KeyPressed;
+       LeaveGraphic;
+     end.
+
+
+
+
+

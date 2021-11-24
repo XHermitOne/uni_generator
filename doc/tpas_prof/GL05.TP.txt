@@ -1,0 +1,404 @@
+
+
+program stats;
+
+       Uses
+         Crt, Graph;
+
+       const
+         MAX = 100;
+
+       type
+         str80 = string[80];
+         DataItem = real;
+         DataArray = array [1..80] of DataItem;
+
+       var
+         data: DataArray;
+         a, m, md, std: real;
+         num: integer;
+         ch: char;
+         datafile: file of DataItem;
+         GraphDriver, Craphmode : integer;
+
+{ версия быстрой сортировки для челых чисел }
+      procedure QuickSort(var item: DataArray; count: integer);
+       procedure qs(l, r:integer; var it: DataArray);
+       var
+         i, j: integer;
+         x, y: DataItem;
+       begin
+         i := l; j := r;
+         x := it[(l+r) div 2];
+         repeat
+           while it[i] < x do i := i+1;
+              while x < it[j] do j := j-1;
+              if i <= j then
+              begin
+                y := it[i];
+                it[i] := it[j];
+                it[j] := y;
+                i := i+1; j := j-1;
+              end;
+             until i>j;
+             if l<j then qs(l, j, it);
+             if l<r then qs(i, r, it );
+           end;
+         begin
+           qs(1, count, item)
+         end; { QuickSort }
+
+{эта функция возвращает значение "истина", если в строке "s"
+       находится символ "сh"   }
+       function is_in(ch: char; s: str80): boolean;
+       var
+         t: integer;
+
+       begin
+         is_in := FALSE;
+         for t:=1 to length(s) do
+          if s[t]=ch then is_in := TRUE;
+       end; { is_in }
+
+{ возвращает код функции, выбранной пользователем из меню }
+       function menu:char;
+       var
+         ch: char;
+
+       begin
+         Writeln;
+         repeat
+           Writeln('Enter data');
+           Writeln('Display data');
+           Writeln('Basic statistics');
+           Writeln('Regression line and scatter plot');
+           Writeln('Plot a bar graph');
+           Writeln('Save');
+           Writeln('Load');
+           Writeln('Quit');
+           Writeln;
+           Write('choose one (E, D, B, R, P, S, L, Q): ');
+         Readln(ch);
+         ch := upcase(ch);
+       until is_in(ch,'EDBRPSLQ');
+       menu := ch;
+      end; { menu }
+
+       { вывод текущего набора данных }
+      procedure Display(data: DataArray; num: integer);
+      var
+       t: integer;
+      begin
+       for t := 1 to num do Writeln(t, ':  ',data[t]);
+       Writeln;
+      end; { Display }
+
+       { ввод данных пользователя }
+      procedure Enter(var data: DataArray);
+      var
+       t: integer;
+      begin
+      Writeln('number of items?:  ');
+      Readln(num);
+       for t := 1 to num do begin
+         Writeln('enter item ',t, ': ');
+       Readln(data[t]);
+       end;
+      end;  { enter }
+
+       { вычисление среднего значения }
+      function mean(data: DataArray; num: integer): real;
+      var
+       t: integer;
+       avg: real;
+      begin
+       avg := 0;
+       for t := 1 to num do avg := avg+data[t];
+       mean := avg/num;
+      end; { mean }
+
+       { вычисление стандартного отклонения }
+      function StdDev(data: DataArray; num: integer): real;
+      var
+       t: integer;
+       std, avg: real;
+      begin
+       avg := mean(data,num);
+       std := 0;
+       for t := 1 to num do
+         std := std +((data[t]-avg)*(data[t]-avg));
+       std := std/num;
+       StdDev := sqrt(std);
+      end; { StdDev }
+
+       { поиск моды }
+      function FindMode(data: DataArray; num: integer): real;
+      var
+       t, w, count, oldcount: integer;
+       md, oldmd: real;
+      begin
+       oldmd := 0; oldcount := 0;
+       for t := 1 to num do
+       begin
+         md := data[t];
+         count := 1;
+         for w := t+1 to num do
+           if md=data[w] then count := count +1;
+           if count > oldcount then
+           begin
+             oldmd := md;
+             oldcount := count;
+           end;
+         end;
+         FindMode := oldmd;
+       end; { FindMode }
+
+       { поиск медианы }
+      function median(data: DataArray; num: integer): real;
+      var
+       dtemp: DataArray;
+           t: integer;
+
+      begin
+       for t := 1 to num do dtemp[t] := data[t];
+       QuickSort(dtemp,num);
+       median := dtemp[num div 2];
+      end; { median }
+
+       { поиск максимального значения данных }
+      function getmax(data: DataArray; num: integer):integer;
+      var
+       t: integer;
+       max: real;
+      begin
+       max := data[1];
+       for t := 2 to num do
+         if data[t]>max then max := data[t];
+         getmax := trunc(max);
+       end; { getmax }
+
+       { поиск минимального значения данных }
+      function getmin(data: DataArray; num: integer):integer;
+      var
+       t: integer;
+       min: real;
+      begin
+       min := data[1];
+       for t := 2 to num do
+         if data[t]<min then min := data[t];
+         getmin := trunc(min);
+       end; { getmin }
+
+       { вывод столбиковой диаграммы }
+       procedure BarPlot(data: DataArray; num: integer);
+       var
+         x, y, max, min, incr, t:integer;
+         a, norm, spread: real;
+         ch: char;
+         value: string[80];
+
+       begin
+         { установка режима 4 для адаптеров EGA и CGA }
+         GraphDriver := CGA ;
+         Craphmode := CGAC1 ;
+         InitGraph(GraphDriver, Craphmode, '');
+         SetColor(1);
+         SetLineStyle(Solidln, 0, NormWidth);
+
+         { сначала для нормализации находится минимальное и
+            максимальное значение }
+         max := getmax(data, num);
+         min := getmin(data, num);
+         if min>0 then min := 0;
+         spread := max - min;
+         norm := 190/spread;
+
+        { вычерчивание сетки }
+          str(min, value);
+          OutTextXY(0, 191, value); { минимум }
+          str(max, value);
+          OutTextXY(0, 0, value); { максимум }
+          str(num, value);
+          OutTextXY(300, 191, value); { число }
+          for t := 1 to 19 do PutPixel(0, t*10, 1);
+          SetColor(3);
+          Line(0, 190, 320, 190);
+          SetColor(2);
+        { вывод данных }
+          for t := 1 to num do
+            begin
+              a := data[t]-min;
+              a := a*norm;
+              y := trunc(a);
+              incr := 300 div num;
+              x := ((t-1)*incr)+20;
+              Line(x, 190, x, 190-y);
+            end;
+            ch := Readkey;
+            RestoreCrtMode;
+       end; { BarPlot }
+
+
+       { вывод точечного графика }
+       procedure ScatterPlot(data: DataArray; num, ymin,
+       ymax, xmax: integer);
+       var
+         x, y, incr, t:integer;
+         a, norm, spread: real;
+         ch: char;
+         value: string[80];
+       begin
+
+         { сначала для нормализации находится минимальное и
+            максимальное значение }
+
+         if ymin>0 then ymin := 0;
+         spread := ymax - ymin;
+  norm := 190/spread;
+
+        { вычерчивание сетки }
+          str(ymin, value);
+          OutTextXY(0, 191, value); { минимум }
+          str(ymax, value);
+          OutTextXY(0, 0, value); { максимум }
+          str(xmax, value);
+          OutTextXY(300, 191, value); { число }
+          SetColor(3);
+          for t := 1 to 19 do PutPixel(0, t*10, 1);
+          Line(0, 190, 320, 190);
+          SetColor(2);
+
+        { вывод данных }
+          for t := 1 to num do
+            begin
+              a := data[t]-ymin;
+              a := a*norm;
+              y := trunc(a);
+              incr := 300 div xmax;
+              x := ((t-1)*incr)+20;
+              Putpixel(x, 190-y, 2);
+            end;
+       end; { ScatterPlot }
+
+       procedure Regress(data: DataArray; num: integer);
+
+       var
+         a, b, x_avg, y_avg, temp, temp2, cor: real;
+         data2: DataArray;
+         t, min, max: integer;
+         ch: char;
+
+       begin
+         { поиск среднего значения Х и У }
+         y_avg := 0; x_avg := 0;
+         for t := 1 to num do
+         begin
+           y_avg := y_avg + data[t];
+           x_avg := x_avg + t; { поскольку Х представляет
+                              собой время }
+         end;
+         x_avg := x_avg/num;
+         y_avg := y_avg/num;
+         { поиск коэффициента 'в' уравнения регрессии }
+         temp := 0; temp2 := 0;
+         for t := 1 to num do
+         begin
+           temp := temp +(data[t] - y_avg)*(t-x_avg);
+           temp2 := temp2 +(t - x_avg)*(t-x_avg);
+         end;
+         b := temp/temp2;
+
+         { поиск коэффициента 'a' уравнения регрессии }
+         a := y_avg-(b*x_avg);
+
+          { вычисление коэффициента корреляции }
+       for t := 1 to num do data2[t] := t;
+       cor := temp/num;
+       cor := cor/(StdDev(data, num)*StdDev(data2,num));
+       Writeln('Уравнение регресии : Y = ',
+       a: 15: 5, '+',b: 15: 5, '* X');
+       Writeln('Коэффициент корреляции :  ', cor: 15:5);
+       Writeln('Вывести данные и линию регрессии ? (y/n)');
+       Readln(ch);
+       ch := upcase(ch);
+       if ch <> 'N' then
+
+       begin
+         { установка режима 4 для адаптеров EGA и CGA }
+         GraphDriver := CGA ;
+         Craphmode := CGAC1 ;
+         InitGraph(GraphDriver, Craphmode, '');
+         SetColor(1);
+         SetLineStyle(Solidln, 0, NormWidth);
+
+         { получение графиков }
+       for t := 1 to num*2 do data2[t] := a+(b*t);
+       min := getmin(data, num)*2;
+       max := getmax(data, num)*2;
+       ScatterPlot(data, num, min,max, num*2);
+       ScatterPlot(data2, num*2, min,max, num*2);
+       ch := Readkey;
+       RestoreCrtMode;
+       end;
+      end; { regress }
+
+       { сохранить данные }
+       procedure Save(data: DataArray; num: integer);
+       var
+         t: integer;
+         fname: string[80];
+         temp: real;
+       begin
+         Write('Enter Filename: ');
+         Readln(fname);
+         Assign(datafile,fname);
+         rewrite(datafile);
+         temp := num;
+         write(datafile,temp);
+         for t := 1 to num do write(datafile,data[t]);
+         close(datafile);
+         end;
+
+  { загрузить данные }
+       procedure Load;
+       var
+         t: integer;
+         fname: string[80];
+         temp: real;
+       begin
+         Write('Enter Filename: ');
+         Readln(fname);
+         Assign(datafile,fname);
+         reset(datafile);
+         Read(datafile,temp);
+         num := trunc(temp);
+         for t := 1 to num do Read(datafile,data[t]);
+         close(datafile);
+         end; { Load }
+
+         begin
+           repeat
+             ch := upcase(menu);
+             case ch of
+              'E': Enter(data);
+              'B': begin
+                     a := mean(data, num);
+                     m := median(data, num);
+                     std := StdDev(data,num);
+                     md := FindMode(data,num);
+                     Writeln('mean:   ',a: 15: 5);
+                     Writeln('median:  ',m: 15: 5);
+                     Writeln('standart deviation:  ',std: 15: 5);
+                     Writeln('mode:  ',md: 15: 5);
+                     Writeln;
+                   end;
+               'D': Display(data,num);
+               'P': BarPlot(data,num);
+               'R': Regress(data,num);
+               'S': Save(data,num);
+               'L': Load;
+              end;
+           until ch='Q'
+        end.
+
+

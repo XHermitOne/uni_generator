@@ -1,0 +1,1041 @@
+-----------------------------------------------------------------
+{Динамическое выделение памяти с использованием Mark и Release.}
+    program alloc;
+
+    type
+      pntr = ^RecType;
+      RecType = array[1..40] of integer;
+
+    var
+      p: pntr;
+      t: integer;
+      q: ^integer;
+
+    begin
+      Mark(q);
+      New(p);
+      for t: = 1 to 40 do p^[t]:=t*2;
+      for t:= 1 to 40 do Write(p^[t], ' ');
+      WriteLn;
+      Release(q);
+     {В этом месте вся память уже возвращена системе}
+    end.
+
+-----------------------------------------------------------------
+{ упорядоченная вставка элементов в список и установка указателя
+          на начало списка }
+          function DLS_Store(info, start: CellPointer;
+                           var last: CellPointer): CellPointer;
+          var
+            old, top: CellPointer;
+            done: boolean;
+          begin
+            top := start;
+            old := nil;
+            done := FALSE;
+
+            if start = nil then begin { первый элемент списка }
+              info^.next := nil;
+              last := info;
+              info^.prior :=nil;
+              DLS_Store := info;
+            end else
+            begin
+              while (start<>nil) and (not done) do
+              begin
+               if start^.CellName < info^.CellName then
+               begin
+                 old := start;
+                 start := start^.next;
+               end else
+               begin { вставка в середину }
+                 if old <>nil then
+                   begin
+                   old^.next := info;
+                   info^.next := start;
+                   start^.prior := info;
+                   info^.prior := old;
+                   DLS_Store := top; { сохранение начала }
+                   done := TRUE;
+                 end else
+                 begin
+                   info^.next := start;{новый первый элемент }
+                   info^.prior := nil;
+                   DLS_Store := info;
+                   done := TRUE;
+                 end;
+               end;
+              end;  { конец цикла }
+              if not done then begin
+               last^.next := info;
+               info^.next := nil;
+               info^.prior := last;
+               last := info;
+               DLS_Store := top; { сохранение начала }
+              end;
+            end;
+          end;  { конец функции DLS_Store }
+
+
+-----------------------------------------------------------------
+    { удаление ячейки из списка }
+     function DL_Delete(start: CellPointer;
+                     key str9): CellPointer;
+     var
+       temp, temp2: CellPointer;
+       done: boolean;
+     begin
+       if start^.CellName=key then
+       begin { первый элемент в списке }
+        DL_Delete := start^.next;
+        if temp^.next <> nil then
+        begin
+          temp :=  start^.next;
+          temp^.prior :=  nil;
+        end;
+        Dispose(start);
+       end else
+       begin
+        done :=  FALSE;
+        temp :=  start^.next;
+        temp2 :=  start;
+        while (temp<>nil) and (not done) do
+        begin
+          if temp^.CellName=key then
+          begin
+            temp2^.next :=  temp^.next;
+            if temp^.next<>nil then
+              temp^.next^.prior :=  temp2;
+
+          done :=  TRUE;
+          last :=  temp^.prior;
+          Dispose(temp);
+        end else
+        begin
+          temp2 :=  temp;
+          temp :=  temp^.next;
+        end;
+       end;
+       DL_Delete :=  start; { начало не изменяется }
+       if not done then WriteLn('not found');
+     end;
+   end; { конец процедуры удаления элемента из списка }
+
+
+-----------------------------------------------------------------
+     { найти конкретную ячейку и установить указатель на нее }
+     function Find(cell: CellPointer): CellPointer;
+     var
+       c: CellPointer;
+     begin
+       c :=  start;
+       while c<>nil do
+       begin
+        if c^.CellName=cell^.CellName then find:=c
+        else c :=  c^.next;
+       end;
+       WriteLn('cell not found');
+       Find:=nil;
+     end; { конец процедуры поиска }
+
+
+-----------------------------------------------------------------
+          { вставка ячейки в дерево }
+
+       function STree(root, r, New:CellPointer; data: char):
+               CellPointer;
+       begin
+         if r = nil then
+         begin
+           New^.left := nil;
+           New^.right := nil;
+           if New^.Cellname < root^.Cellname
+             then root^.left := New
+             else root^.right := New;
+             STree := New;
+        end else
+        begin
+          if New^.Cellname<r^.Cellname then
+          STree := STree(r,r^.left, New)
+           else STree := STree(r, r^.right, New)
+        end;
+        Stree := root
+       end; { конец процедуры STree }
+
+          { удаление элемента из дерева }
+         function DTree(root:Cellpointer;key:str9):Cellpointer;
+         var
+           temp,temp2:Cellpointer;
+
+        begin
+          if root^.CellName = key then
+          begin
+            if root^.left=root^.right tnen
+            begin
+              dispose(root)
+              DTree := nil;
+            end
+            else  if root^.left=nil tnen
+            begin
+              temp := root^.right
+              dispose(root)
+              DTree := temp;
+            end
+            else  if root^.right=nil tnen
+            begin
+              temp := root^.left
+              dispose(root)
+              DTree := temp;
+            end
+            else
+            begin  { имеются два листа }
+              temp2 := root^.right
+              temp := root^.right
+              while temp^.left <> nil do temp := temp^.left;
+              temp^.left := root^.left
+              dispose(root);
+              DTree := temp2
+            end;
+            else
+            begin
+              if root^.CellName < key
+              then root^.right :=  DTree(root^.right, key)
+              else root^.left :=  DTree(root^.left, key)
+              DTree := root;
+            end;
+          end; { конец функции DTree }
+
+     { найти заданную ячейку и установить указатель на нее }
+     function Search(root: CellPointer; key str9): CellPointer
+     begin
+       if root:=nil then Search :=  nil
+       else begin
+        while (root^.CellName<>key) and (root<>nil) do
+        begin
+          if root^.CellName<>key then root:=root^.left
+          else root:=root^.right;
+        end;
+        Search :=  root;
+     end; { конец процедуры поиска }
+
+-----------------------------------------------------------------
+
+     Эта функция позволяет при реализации процедуры вставки
+    { эта функция  определяет  индекс  указанной  ячейки   }
+    function FindIndex(i: CellPointer): integer;
+    var
+      loc,temp,code:integer;
+      t:str9;
+
+    begin
+      loc :=  ord(i^.CellName[1]);
+      t :=  copy(i^.CellName,2,9);
+      val(t,temp,code);
+      loc :=  loc+(temp*20);
+      find :=  loc;
+    end; { конец функции поиска индекса }
+
+
+-----------------------------------------------------------------
+
+    { удаление ячейки из массива }
+    procedure Delete(r_cell: CellPointer);
+    var
+      loc:integer;
+    begin
+      loc :=  FindIndex(r_cell);
+      if loc>10000 then WriteLn('Cell out of bounds')
+      else
+      begin
+       Dispose(r_cell);
+       sheet[loc]:=nil;
+      end;
+    end; { конец процедуры удаления }
+
+-----------------------------------------------------------------
+    const
+      SIZE = 260;
+
+    type
+      str9 = string[9];
+      str128 = string[128];
+
+      cell = record
+       CellName: str9;
+       formula: str128;
+       next: integer;
+      end;
+
+    var
+      sheet:array[0..SIZE] of cell;
+      name: cell;
+
+-----------------------------------------------------------------
+    { инициализация физического массива }
+    procedure InitSheet;
+    var
+      t:integer;
+
+    begin
+      for t :=       0 to SIZE do
+      begin
+       sheet[t].CellName :=  'empty';
+       sheet[t].next:= -1;
+      end;
+    end; { конец процедуры инициализации физического массива }
+
+
+-----------------------------------------------------------------
+
+  { вычисление индекса хеширования и вставка значения элемента }
+
+          function HashIndex(i:str9):integer;
+          var
+            loc, temp, code:integer
+            t :str9;
+
+          begin
+            loc := ord(i[1]-ord('A');
+            t := copy(i,2,9)
+            val(t, temp, code)
+            HashIndex := (loc*26+temp) div 10;
+          end;
+
+  { выполнение действительной вставки значения элемента }
+
+          procedure Store(New:Cell);
+          var
+            loc, i:integer;
+          begin
+            loc := HashIndex(New.Cellname);
+            if loc>SIZE then Writeln('Location out of bounds')
+            else
+            begin
+              if ((sheet[loc].Cellname = 'empty') or
+                 (sheet[loc].Cellname = New.Cellname)) then
+              begin
+               sheet[loc].Cellname = New.Cellname;
+               sheet[loc].formula = New.formula;
+              end else { поиск свободной ячейки }
+              begin
+
+{ сначала просмотр до конца всей цепочки существующих индексов}
+
+              while(sheet[loc].next <>-1) do
+                  loc := sheet[loc].next;
+              { теперь поиск свободной ячейки }
+              i := loc;
+             while ((i<SIZE) and (sheet[loc].Cellname='empty'))
+              do i := i+1;
+             if(i = SIZE) then
+             begin
+              Writeln('cannot plase in hash array');
+             end else
+             begin { поместить значение в свободную ячейку и
+                     обновить цепочку }
+               sheet[i].Cellname = New.Cellname;
+               sheet[i].formula = New.formula;
+
+               sheet[loc].next := i; { обеспечение связи в
+                                        цепочке }
+              end;
+            end;
+          end;
+        end; { конец процедуры вставки }
+
+
+-----------------------------------------------------------------
+
+    { поиск физического адреса ячейки }
+    function Find(cname:cell):integer;
+    var
+      loc:integer;
+    begin
+      loc :=  FindIndex(cname.CellName);
+      while((sheet[loc].CellName<>cname.CellName) and
+          (loc <> -1)) do loc:=sheet[loc].next;
+      if(loc = -1) then
+      begin
+       WriteLn('Not found');
+       Find :=  -1;
+      end else Find :=       loc;
+      write('loc is'); writeLn(loc);
+    end; { конец функции поиска }
+
+
+-----------------------------------------------------------------
+    { очень простой текстовый редактор }
+    program TextEd;
+    type
+      str80 = string[80];
+      LinePointer = ^Line;
+      line = record
+       text: str80;
+       num: integer;
+       next: LinePointer;  {указатель       на  следующую строку}
+       prior: LinePointer; {указатель на предыдущую запись }
+      end;
+      DataItem = line;
+      filType = file of line;
+
+    var
+      text: filtype;
+      start, last: LinePointer;
+      done: boolean;
+      iname: str80;
+
+    { возвращает выбранную пользователем функцию }
+    function MenuSelect: char;
+    var
+      ch: char;
+    begin
+      WriteLn('1. Enter text');
+      WriteLN('2. Delete a line');
+      WriteLn('3. Display the file');
+      WriteLn('4. Save the file');
+      WriteLn('5. Load the file');
+      WriteLn('6. Quit');
+      repeat
+       WriteLn;
+       Write('Enter your choice: ');
+       ReadLn(ch); ch :=  UpCase(ch);
+            until (ch>='1') and (ch<='6')
+            MenuSelect := ch;
+            end;{ конец выбора по меню }
+
+  { поиск заданной строки и выдача указателя на нее }
+          function Find(num: integer): LinePointer;
+          var
+            i: LinePointer;
+          begin i:= start;
+            find := nil;
+            while (i<>nil) do begin
+              if lnum=i^.num then find :=i;
+              i := i^.next;
+            end;
+          end;
+
+     { формирование номеров строк при вставке или удаления из
+          текста }
+          procedure PatchUp(lnum, incr: integer);
+          var
+            i:LinePointer;
+          begin
+            i := Find(lnum)
+            while (i<>nil) do begin
+              i^.num := i^.num +incr;
+              i := i^.next
+            end:
+          end;
+
+           { упорядоченная вставка строк в текст }
+          function DLS_Store(info, start: LinePointer;
+                           var last: LinePointer): LinePointer;
+          var
+            old, top: LinePointer;
+            done: boolean;
+          begin
+            top := start;
+            old := nil;
+            done := FALSE;
+
+            if start = nil then begin { первый элемент списка }
+              info^.next := nil;
+              last := info;
+              info^.prior :=nil;
+              DLS_Store := info;
+            end else
+            begin
+              while (start<>nil) and (not done) do
+              begin
+               if start^.num < info^.num then
+               begin
+                 old := start;
+                 start := start^.next;
+               end else
+               begin { вставка в середину }
+                 if old <>nil then
+                   begin
+                   old^.next := info;
+                   info^.next := start;
+                   start^.prior := info;
+                   info^.prior := old;
+                   DLS_Store := top; { сохранение начала }
+                   done := TRUE;
+                 end else
+                 begin
+                   info^.next := start;{новый первый элемент }
+                   info^.prior := nil;
+                   DLS_Store := info;
+                   done := TRUE;
+                 end;
+               end;
+              end;  { конец цикла }
+              if not done then begin
+               last^.next := info;
+               info^.next := nil;
+               info^.prior := last;
+               last := info;
+               DLS_Store := top; { сохранение начала }
+              end;
+            end;
+          end;  { конец функции DLS_Store }
+
+
+      { удаление строки текста }
+          function DL_Delete(start: LinePointer
+                           key: str[80]:) LinePointer
+          var
+            temp, temp2: LinePointer
+            done: boolean;
+          begin
+            if star^.num = key then begin { первый элемент
+          списка }
+             DL_Delete := start^.next;
+             if temp^.next <> nil then
+             begin
+              temp := start^.next;
+              temp^.prior := nil;
+             end;
+             dispose(start);
+          end else
+          begin
+            done := FALSE;
+            temp := start^.next;
+            temp2 := start;
+            while (temp <> nil) and (not done) do
+            begin
+              if temp^.num = key then
+              begin
+               temp2^.next := temp^.next;
+               if temp^.next = <> nil then
+                  temp^.next^.prior := temp2
+                  done := TRUE
+                  last := temp^.prior
+                  dispose(temp);
+              end else
+                 temp2 := temp;
+                 temp := temp^.next;
+               end;
+            end;
+            DL_Delete := start; { начало не изменяется }
+            if not done then Writeln('not found');
+            else PatchUp(key+1,-1);
+          end;
+        end; { конец функции DL_Delete }
+
+{ подсказка пользователю для ввода номера удаляемой строки }
+          procedure Remove;
+          var
+            num:integer;
+          begin
+            Writeln('Enter line to delete: ');
+            Readln(num);
+            start := DL_Delete(start,num);
+          end;  { конец процедуры удаления }
+
+                   { ввод строк текста }
+          procedure Enter;
+          var
+            info: LinePointer;
+            done: boolean;
+          begin
+            done := FALSE;
+            Write('Enter starting lnie number: ');
+            Readln(num);
+            repeat
+            new(info)       { получить новую запись }
+            info^.num := num;
+            Write(info^.num,':')
+            Readln(info^.text);
+            if Length(info^.text = 0 then done := TRUE
+            else begin
+            if Find(num)<> nil then PatchUp(num,1);
+              start := DLS_Store(info, start, last);
+            end;
+            num := num +1;
+          until done;
+        end;  { конец ввода }
+
+          { вывод файла на экран }
+          procrdure Display(start: LinePointer);
+          begin
+            while start <> nil do begin
+              Write(start^.num,':');
+              Writeln(start^.text);
+              start := start^.next
+            end;
+            Writeln;
+          end;
+
+          { записать файл на диск }
+          procedure Save(var f:FilType; start: LinePointer):
+          begin
+            Writeln('saving file');
+            rewrite(f);
+            while start <> nil do begin
+            write(f,start);
+            start := start^.next;
+            end;
+         end;
+
+
+     { загрузчика файла с диска и получение указателя на начало
+                         списка }
+          procedure Load(var f:FilType; start: LinePointer):
+                     LinePointer;
+          var
+            temp: LinePointer
+          begin
+            Writeln('load file');
+            reset(f);
+            while start <> nil do begin
+              temp := start^.next
+              dispose(start);
+              start := temp;
+            end;
+
+            start := nil; last := nil;
+            if not eof(f) then begin
+            begin
+              New(temp);
+              Read(f,temp^);
+              start := DLS_Store(temp, start, last);
+          end;
+
+          begin
+            start := nil; { сначала список пустой }
+            last := nil;
+            done := FALSE;
+
+            Write('Enter Filename: ');
+            Readln(filename);
+            Assign(text,filename);
+
+            repeat
+              case MenuSelect of
+              '1': Enter;
+              '2': Remove;
+              '3': Display(start);
+              '4': Save(text,start);
+              '5': start := Load(text);
+              '6': done := TRUE;
+              end;
+            until done = TRUE;
+          end.
+-----------------------------------------------------------------
+        type
+          str80 = string[80];
+          str30 = string[30];
+          VocabPointer = ~vocab;
+          vocab = record
+            typ:       char; { часть речи }
+            connotate: char; { дополнение }
+
+          word:      str30;  { само слово }
+          def:       str80;  { определение }
+          next:      VocabPointer; { указатель на следующую
+                                                    запись }
+          prior:     VocabPointer; { указатель на предыдущую
+                                                    запись }
+        end
+
+     { поочередное выделение слов из предложения }
+        procedure Dissect(var s:str80;var w:str30);
+        var
+          t, x:integer;
+          temp:str80;
+        begin
+          t :=1;
+          while(s[t]=' ') do t := t+1;
+          x := t;
+          while(s[t]=' ') and (t<=Length(s)) do t := t+1;
+          if t<=Length(s) then t := t-1;
+          w := copy(s, x, t-x+1);
+          temp := s;
+          s := copy(temp,t+1,Length(s))
+        end;
+
+{ формирование ответов на основании введенного пользователем
+          предложения }
+        procedure Talk;
+        var
+          sentence: str80
+          word: str30
+          w: VocabPointer;
+        begin
+          Writeln('Conversation mode (quit to exit)');
+          repeat
+            Write(': ')
+            Readln(sentence)
+            repeat
+              Dissect(sentence,word);
+              w := Search(start, word);
+              if w <> nil then begin
+               if w^.type = 'n' then
+               begin
+                 case w^.connotate of
+                  'g': Write('I like ');
+                  'b': Write('I do not like ');
+                 end;
+                 Writeln(w^.def);
+               end;
+               else Writeln(w^.def);                             8
+              end;
+              else if word <>'quit' then
+              begin
+               Writeln(word,'is unknown.');
+               enter(TRUE);
+              end;
+            until Length(sentence) = 0;
+           until word = 'quit';
+          end;
+
+     Ниже приводится вся программа:
+
+     { программа, которая позволяет вести очень простой диалог }
+
+          program SmartAlec;
+
+          type
+            str80 = string[80];
+            str30 = string[30];
+            VocabPointer = ^vocab
+            vocab = record;
+              typ:         char; { часть речи }
+              connotate: char; { дополнение }
+              word:         str80; { само слово }
+              def:         str30; { определение }
+              next: VocabPointer; { указатель на следующую
+                            запись }
+              prior: VocabPointer; { указатель на предыдущую
+                            запись }
+              DataItem = vocab;
+              DataArray = array [1..100] of VocabPointer
+              filtype = file of vocab;
+          var
+            test: DataArray;
+            smart: filtype;
+            start, last:VocabPointer;
+            done: boolean;
+
+       { возвращает функцию, выбранную пользователем }
+
+          function MenuSelect:char;
+          var
+           ch: char;
+
+          begin
+            Writeln('1. Enter words');
+            Writeln('2. Delete a word');
+            Writeln('3. Display the list');
+            Writeln('4. Search for a word');
+            Writeln('5. Save the list');
+            Writeln('6. Load the list');
+            Writeln('7. Converse');
+            Writeln('8. Quit');
+            repeat
+              Writeln;
+              Write('Enter your choice: ');
+              Readln(ch);
+              ch := UpCase(ch);
+            until (ch>='1') and (ch<='8')
+            MenuSelect := ch;
+            end;{ конец выбора по меню }
+
+             { добавление элементов в словарь }
+          function DLS_Store(info, start: VocabPointer;
+                           var last: VocabPointer): VocabPointer;
+          var
+            old, top: VocabPointer;
+            done: boolean;
+          begin
+            top := start;
+            old := nil;
+            done := FALSE;
+
+            if start = nil then begin { первый элемент списка }
+              info^.next := nil;
+              last := info;
+              info^.prior :=nil;
+              DLS_Store := info;
+            end else
+            begin
+              while (start<>nil) and (not cone) do
+              begin
+               if start^.word < info^.word then
+               begin
+                 old := start;
+                 start := start^.next;
+               end else
+               begin { вставка в середину }
+                 if old <>nil then
+                   begin
+                   old^.next := info;
+                   info^.next := start;
+                   start^.prior := info;
+                   info^.prior := old;
+                   DLS_Store := top; { сохранение начала }
+                   done := TRUE;
+                 end else
+                 begin
+                   info^.next := start;{новый первый элемент }
+                   info^.prior := nil;
+                   DLS_Store := info;
+                   done := TRUE;
+                 end;
+               end;
+              end;  { конец цикла }
+              if not done then begin
+               last^.next := info;
+               info^.next := nil;
+               info^.prior := last;
+               last := info;
+               DLS_Store := top; { сохранение начала }
+              end;
+            end;
+          end;  { конец функции DLS_Store }
+
+                  { удаление слова }
+          function DL_Delete(start: VocabPointer
+                           key: str[80]:) VocabPointer
+          var
+            temp, temp2: VocabPointer
+            done: boolean;
+          begin
+            if star^.num = key then begin { первый элемент
+          списка }
+             DL_Delete := start^.next;
+             if temp^.next <> nil then
+             begin
+              temp := start^.next;
+              temp^.prior := nil;
+             end;
+             dispose(start);
+          end else
+          begin
+            done := FALSE;
+            temp := start^.next;
+            temp2 := start;
+            while (temp <> nil) and (not done) do
+            begin
+              if temp^.word = key then
+              begin
+               temp2^.next := temp^.next;
+               if temp^.next = <> nil then
+                  temp^.next^.prior := temp2
+                  done := TRUE;
+               if last := temp then last := last^.prior
+                  dispose(temp);
+              end else
+              begin
+                 temp2 := temp;
+                 temp := temp^.next;
+               end;
+            end;
+            DL_Delete := start; { начало не изменяется }
+            if not done then Writeln('not found');
+          end;
+        end; { конец функции DL_Delete }
+
+         { удаление слова, заданного пользователем }
+          procedure remove;
+          var
+            name:str80;
+          begin
+            Writeln('Enter word to delete: ');
+            Readln(name);
+            start := DL_Delete(start,name);
+          end;  { конец процедуры удаления слова, заданного
+          пользователем}
+
+        { ввод слов в базу данных }
+          procedure Enter;
+          var
+            info: VocabPointer;
+            done: boolean;
+          begin
+            done := FALSE;
+            repeat
+            new(info)       { получить новую запись }
+            Write('Enter word: ');
+            Readln(info^.word);
+            if Length(info^.word)=0 then done := TRUE
+            else
+            begin
+              Write(Enter type(n,v,a): ');
+              Readln(info.typ);
+              Write(Enter connotation (g,b,n): ');
+              Readln(info.connotation);
+              Write(Enter difinition: ');
+              Readln(info.dif);
+              start := DLS_Store(info, start, last); { вставить
+          запись }
+            end;
+          until done or one;
+        end;  { конец ввода }
+
+
+          { вывод слов из базы данных }
+          procrdure Display(start: VocabPointer);
+          begin
+            while start <> nil do begin
+              Writeln('word',start^.word);
+              Writeln('type',start^.typ);
+              Writeln('connotation',start^.connotation);
+              Writeln('difinition',start^.def);
+              Writeln;
+              start := start^.next
+            end;
+          end;  {конец процедуры вывода }
+
+
+         { поиск заданного слова }
+          function Search(start: VocabPointer; name: str80):
+                       VocabPointer;
+          var
+            done: boolean;
+          begin
+            done := FALSE
+            while (start <> nil) and (not done) do begin
+              if word = start^.word then begin
+               search := start;
+               done := TRUE;
+              end else
+              start := star^.next;
+            end;
+            if start = nil then search := nil; { нет в списке }
+          end; { конец поиска }
+
+
+          { поиск слова,заданного пользователем }
+          procedure Find;
+          var
+            loc: VocabPointer;
+            word: str80;
+          begin
+            Write('Enter word to find: ');
+            Readln(word);
+            loc := Search(start, word);
+            if loc <> nil then
+            begin
+              Writeln('word',loc^.word);
+              Writeln('type',loc^.typ);
+              Writeln('connotation',loc^.connotation);
+              Writeln('difinition',loc^.def);
+              Writeln;
+            end;
+            else Writeln('not in list')
+             Writeln;
+          end; { Find }
+
+          { записать словарь на диск }
+          procedure Save(var f:FilType; start: VocabPointer):
+          begin
+            Writeln('saving file');
+            rewrite(f);
+            while start <> nil do begin
+            write(f,start);
+            start := start^.next;
+            end;
+         end;
+
+
+          { загрузить словарь с диска }
+          procedure Load(var f:FilType; start: VocabPointer):
+                     VocabPointer;
+          var
+            temp, temp2: VocabPointer
+            first: boolean;
+          begin
+            Writeln('load file');
+            reset(f);
+            while start <> nil do begin
+              temp := start^.next
+              dispose(start);
+              start := temp;
+            end;
+
+            start := nil; last := nil;
+            if not eof(f) then begin
+              New(temp);
+              Read(f,^temp)
+              start := DLS_Store(temp,start,last);
+            end;
+            Load := start;
+          end; { Load }
+
+
+     { поочередное выделение слов из предложения }
+        procedure Dissect(var s:str80;var w:str30);
+        var
+          t, x:integer;
+          temp:str80;
+        begin
+          t :=1;
+          while(s[t]=' ') do t := t+1;
+          x := t;
+          while(s[t]=' ') and (t<=Length(s)) do t := t+1;
+          if t<=Length(s) then t := t-1;
+          w := copy(s, x, t-x+1);
+          temp := s;
+          s := copy(temp,t+1,Length(s))
+        end;
+
+    { формирование ответов на основании введенного пользователем
+          предложения }
+        procedure Talk;
+        var
+          sentence: str80
+          word: str30
+          w: VocabPointer;
+        begin
+          Writeln('Conversation mode (quit to exit)');
+          repeat
+            Write(': ')
+            Readln(sentence)
+            repeat
+              Dissect(sentence,wort);
+              w := Search(start, word);
+              if w <> nil then begin
+               if w^.type = 'n' then
+               begin
+                 case w^.connotate of
+                  'g': Write('I like ');
+                  'b': Write('I do not like ');
+                 end;
+                 Writeln(w^.def);
+               end;
+               else Writeln(w^.def);
+              end;
+              else if word <>'quit' then
+              begin
+               Writeln(word,'is unknown.');
+               enter(TRUE);
+              end;
+            until Length(sentence) = 0;
+           until word = 'quit';
+          end;
+
+          begin
+            start := nil;
+            last := nil;
+            done := FALSE;
+
+            Assign(smart,'smart.dfd')
+            repeat
+              case MenuSelect of
+               '1': Enter(FALSE);
+               '2': Remove;
+               '3': Display(start);
+               '4': Find;
+               '5': Save(smart,start);
+               '6': start := Load(smart,start);
+               '7': Talk;
+               '8': done := TRUE;
+              end;
+            until done=TRUE;
+          end.
+
+
+

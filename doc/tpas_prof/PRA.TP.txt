@@ -1,0 +1,379 @@
+
+    float qwerty;
+
+    main()
+    {
+      qwerty=0;
+      printf("%f", qwerty);
+      printf("hello there\n");
+      F2(25);
+      printf("%f\n", F1(10));
+      printf("%2.4f\n", qwerty):
+    }
+
+    F2(x)
+    int x;
+    {
+      printf("%d", x*2);
+    }
+
+    float F1(w);
+    float w;
+    {
+      qwerty = 23.34;
+      return w/3.1415;
+    }
+----------------------------------------------------------------
+    program test (input,output);
+    var
+      qwerty: real;
+
+    procedure F2(x: integer);
+    begin
+      WriteLn(x*2);
+    end;
+
+    function F1(w:real): real;
+    begin
+      F1 := w/3.1415;
+      qwerty := 23.34;
+    end;
+
+    begin
+      qwerty := 0;
+      WriteLn(qwerty);
+      WriteLn('hello there');
+      F2(25);
+      WriteLn(F1(10));
+      WriteLn(qwerty:2:4);
+    end.
+
+------------------------------------------------------------------
+     {считывание лексемы из входной строки}
+     procedure GetToken;
+     var
+       temp:str80;
+
+     begin
+       token:=''; {пустая строка}
+       While(Iswhite(prog[t])) do t:=t+1;{пропустить
+                             предшествующие пробелы}
+       if prog[t]='S' then token:='S';
+       if (pos(prog[t],'.#:;,+│<>&^-*/!%^=(){}')<>0)
+        or (prog[t]=chr(39)) then
+        begin
+          if (prog[t]='{') or (prog[t]='}') then
+          begin
+            TokType:=NAME;
+            if prog[t]='{' then
+            begin
+              token:='begin';
+              indent:=indent+1;
+            end else
+            begin
+              token:='end';
+              indent:=indent-1;
+            end;
+          end
+          else
+          begin
+            TokType:=DELIMITER;
+            token:=prog[t]; {это  оператор}
+          end;
+            t:=t+1;
+          end else if IsAlpha(prog[t]) then
+          begin
+            While(not IsDelim(prog[t])) do
+            begin
+              token:=concat(token,prog[t]); {построить лексему}
+              t:=t+1;
+            end;
+            TokType:=NAME;
+          end
+          else if IsDigit(prog[t]) then
+          begin
+            While(not IsDelim(prog[t])) do
+            begin
+              token:=concat(token,prog[t]); {построить число}
+              t:=t+1;
+              TokType:=NUMBER;
+            end;
+          end else if prog[t]='"' then {это строка}
+          begin
+            t:=t+1;
+            token:=chr(39); { a ' }
+            while prog[t]<>'"' do
+            begin
+              token:=concat(token, prog[t]);
+              t:=t+1;
+              TokType:=STR;
+
+              end;
+              t:=t+1; {пройти за закрывающие кавычки}
+              token:=concat(token,chr(39));
+          end;
+     end; {GetToken}
+
+-----------------------------------------------------------------
+     {трансляция  программы на Си в Турбо Паскаль}
+     procedure Translate;
+     begin
+       case token[1] of
+         '-': token:='not';
+         '=': {просмотр вперед для обнаружения двойного
+                    символа равно}
+              begin
+                SetToken;
+                if token='=' then token:='=='
+                else
+                begin
+                  PutBack; {восстановить лексему в потоке}
+                  token:=':='; {присваивание}
+                end;
+              end;
+         '!': {просмотр вперед для обнаружения <>}
+              begin
+                GetToken;
+                if token='=' then token:='<>'
+                else
+                begin
+                  PutBack;
+                  token:='not';
+                end;
+              end;
+         '%': token:='mod';
+         '│': begin
+                GetToken;
+                if token<>'│' then PutBack; {нет двойного ИЛИ}
+                  token:='or';
+               end;
+         '&': begin
+                GetToken;
+                if token<>'&' then PutBack; {нет двойного И}
+                  token:='and'
+              end;
+         '^': token:='xor';
+       end;
+
+       if token='switch' then token:='case'
+       else if token='struct' then token='record'
+       else if token='int' then token='integer'
+       else if token='tloat' then token='real'
+       else if token='printf' then token='Write'
+       else if token='extern' then token='forward'
+       else if token='case' then token='';
+     end; {Translate}
+
+-----------------------------------------------------------------
+     {простой преобразователь из Си в Турбо Паскаль}
+     program СToPascal;
+     type
+       str80 = string[80];
+       TType = (DELIMITER, NAME, NUMBER,STR);
+     var
+       inname, outname, token, prog: string[255];
+       TokType: TType;
+       infile, outfile: text;
+       indent, t: integer;
+
+    {данная функция возвращает TRUE,  если ch является буквой
+                            алфавита}
+     function IsAlpha(ch:char): bolean;
+     begin
+       IsAlpha:=(UpCase(ch)>='A') and (UpCase(ch)<='Z');
+     end; {IsAlpha}
+
+    {данная  функция возвращает TRUE,  если ch является
+     символом новой строки,  табуляции или пробелом     }
+     function IsWhite(ch:char): bolean;
+     begin
+       IsWhite:=(ch=' ') or (ch=chr(13));
+     end; {IsWhite}
+
+    {данная функция возвращает TRUE,  если ch является
+                          разделителем}
+     function IsDelim(ch:char): boolean;
+     begin
+       if ch=chr(29) then IsDelim:=TRUE  { a ' }
+       else if pos(ch,'#:.,;<>│&-+/*%^=!()${}')<>0 then
+                   IsDelim:=TRUE
+       else IsDelim:=FALSE;
+     end; {IsDelim}
+
+    {данная функция возвращает TRUE, если ch - цифра от 0 до 9}
+     function IsDigit(ch:char): bolean;  5
+     begin
+       IsDigit:=(ch>='0') and (ch<='9');
+     end; {IsDigit}
+
+    {GotToken  считывает следующую лексему из входного потока}
+    procedure GetToken;
+    var
+      temp: str80;
+
+    begin
+      token := ''; {пустая строка }
+      while(IsWhite(prog[t])) do t:=t+1; {пропустить
+                     предшествующие пробелы}
+       if prog[t]='$' then token:='$';
+       if (pos(prog[t],'.#:;,+│<>&^-*/!%^"(){}')<>0)
+         or (prog[t]=chr(39)) then
+         begin
+           if (prog[t]='{') or (prog[t]='}') then
+           begin
+             TokType:=NAME;
+             if prog[t]='{' then
+             begin
+               token:='begin';
+               indent:=indent+1;
+             end else
+             begin
+               token:='end';
+               indent:=indent-1;
+             end;
+           end
+           else
+           begin
+             TokType:=DELIMITER;
+             token:=prog[t];      {является оператором }
+           end;
+           t := t+1;
+        end else if IsAlpha(prog[t]) then
+        begin
+          While(not IsDelim(prog[t])) do
+          begin
+            token:=concat(token,prog[t]);{ построить лексемы }
+            t:=t+1;
+          end;
+          TokType:=NAME;
+       end
+       else if IsDigit(prog[t]) then
+       begin
+         While(not IsDelim(prog[t])) do
+         begin
+           token:=concat(token,prog[t]); { построить число }
+           t:=t+1;
+           TokType:=NUMBER;
+         end;
+
+       end else if prog[t]='"' then
+       begin
+         t:=t+1;
+         token:=chr(39);  { a ' }
+         while prog[t]<>'"' do
+         begin
+           token:=concat(token,prog[t]);
+           t:=t+1;
+           TokType:=STR;
+         end;
+         t:=t+1; {пройти на закрывающие кавычки}
+         token:=concat(token,chr(39));
+       end;
+     end; {GetToken}
+
+     procedure PutBack; {поместить назад неиспользованную
+                                    лексему}
+     begin
+       t:=t-length(token);
+     end; {PutBack}
+
+     {транслировать программу с языка Си в Турбо Паскаль}
+     procedure Translate;
+     begin
+       case token[1] of
+         '-': token:='not';
+         '=': {просмотр вперед для поиска двойного символа равно}
+              begin
+                GetToken;
+                if token='=' then token:='=='
+                else
+                begin                   17
+                  PutBack; {восстановление лексемы}
+                  token:=':=';
+                end;
+              end;
+         '!': {просмотр вперед для поиска <>}
+              begin
+                GetToken;
+                if token='=' then token:='<>'
+                else
+                begin
+                  PutBack;
+                  token:='not';
+                end;
+              end;
+         '%': token:='mod';
+         '│': begin
+                GetToken;
+                if token<>'│' then PutBack; { не  двойное ИЛИ}
+                  token:='or';
+              end;
+         '&': begin
+                GetToken;
+                if token<>'&' then PutBack; { не  двойное И}
+                  token:='and'
+                end;
+         '^': token:='xor';
+        end;
+        if token='swich' then token:='case'
+        else if token='stiwet' then token:='record'
+        else if token='int' then token:='integer'
+        else if token='float' then token:='real'
+        else if token='printf' then token:='forward'
+        else if token='case' then token:='';
+     end; {Translate}
+
+     {преобразование в Паскаль}
+     procedure convert;
+     var
+       count:integer;
+     begin
+       GetToken;
+       for count:=1 to indent do
+         Write(outfile,' ');
+       while token<>'$' do
+       begin
+         case TokType of
+           STR: Write(outfile,token);
+           NAME: begin
+                 Translate;
+                 Write(outfile,token,' ');
+                 end;
+           DELIMITER: begin
+                 Translate;
+                 Write(outfile,token);
+                 end;
+           NUMBER: Write(outfile,token);
+         end;
+         GetToken;
+       end;
+       token:='';
+       WriteLn(outfile,token);
+     end; {convert}
+
+     begin {main}
+       Write('Введите имя входного  файла: ');
+       ReadLn(inname);
+       Write('Введите имя выходного  файла: ');
+       ReadLn(outfile);
+       Assign(infile,inname);
+       Assign(outfile,outname);
+       Reset(infile);
+
+       Rewrite(outfile);
+
+       indent:=0; {счетчик абзацев для каждого BEGIN и END}
+       while not EOF(infile) do
+       begin
+         t:=1;  {сбрасывать индекс каждый раз}
+         ReadLn(infile,prog);
+         prog:=concat(prog,'&');
+         convert;
+       end;
+       token:='.';
+       WriteLn(outfile,token);
+       close(infile); close(outfile);
+     end.
+
+
+

@@ -1,0 +1,940 @@
+------------------------------------------------------------------
+     { шифр простой замены }
+     program subst;
+     type
+       str80 = string[80];
+
+     var
+       inf, outf: str80;
+       start: integer;
+       ch: char;
+
+     procedure code (inf, outf: str80; start: integer);
+     var
+       infile, outfile: file of char;
+       ch: char;
+       t: integer;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       while not eof(infile) do
+       begin
+         Read(infile, ch);
+         ch : = upcase(ch);
+         if (ch>='A') and (ch<='Z') then
+         begin
+           t  := ord(ch)+start;
+           if t>ord('Z') then t  := t-26;
+           ch  := chr(t);
+         end;
+         Write(outfile, ch);
+       end;
+       WriteLn('файл закодирован');
+       close(infile); close(outfile);
+     end;
+
+     procedure decode(inf, outf: str80; start: integer);
+     var
+        infile, outfile: file of char;
+        ch: char;
+        t: integer;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       while not eof(infile) do
+       begin
+         read(infile, ch);
+         ch  := upcase(ch);
+         if (ch>='A') and (ch<='Z') then
+         begin
+           t  := ord(ch)-start;
+           if t<ord('A') then t  := t+26;
+           ch  := chr(t);
+         end;
+         Write(outfile, ch);
+       end;
+       WriteLn('файл декодирован');
+       close(infile); close(outfile);
+     end;
+
+     begin
+       Write('введите имя входного файла : ');
+       ReadLn(inf);
+       Write('введите имя выходного файла : ');
+       ReadLn(outf);
+       Write('начальная позиция (1-26): ');
+       ReadLn(start);
+       Write('кодировать или декодировать (C or D): ');
+       ReadLn(ch);
+       if upcase(ch)='C' then code(inf, outf, start)
+       else if upcase(ch)='D' then decode(inf,outf,start);
+     end.
+-----------------------------------------------------------------
+     { улучшенный  шифр замены,  который использует перемешанный
+      алфавит
+     }
+     program subs1;
+     type
+       str80 = string[80];
+
+     var
+       inf, outf: str80;
+       alphabet,sub: str80;
+       ch: char;
+
+     { данная функция возвращает индекс в алфавите замены }
+     function find(alphabet: str80; ch: char): integer;
+     var
+       t: integer;
+
+     begin
+       find  := -1; { код ошибки }
+       for t := 1 to 27 do if ch=alphabet[t] then find  := t;
+     end;   {find}
+
+     {данная функция возвращает TRUE истина,
+      если с - это буква алфавита }
+     function isalpha(ch: char): boolean;
+     begin
+          isalpha:=(upcase(ch)>='A') and (upcase(ch)<='Z');
+     end;   {isalpha}
+
+     procedure code(inf, outf: str80);
+     var
+       infile, outfile: file of char;
+       ch: char;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       while not eof(infile) do
+       begin
+         Read(infile, ch);
+         ch:=upcase(ch);
+         if isalpha(ch) or (ch=' ') then
+         begin
+           ch:=sub[find(alphabet, ch)]; { найти замену }
+         end;
+         Write(outfile, ch);
+       end;
+       WriteLn('файл закодирован');
+       close(infile); close(outfile);
+     end;   {code}
+
+     procedure decode(inf, outf: str80);
+     var
+       infile, outfile: file of char;
+       ch: char;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       while not eof(infile) do
+       begin
+         Read(infile, ch);
+         ch:=upcase(ch);
+         if isalpha(ch) or (ch=' ') then
+         ch:=alphabet[find(sub,ch)]; {замена снова на реальный
+                                           алфавит }
+         Write(outfile, ch);
+       end;
+       WriteLn('файл декодирован');
+       close(infile); close(outfile);
+     end;   {decode}
+
+
+     begin
+       alphabet  := 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ';
+       sub       := 'CAZWSXEDCRFVTGBYHNUJM IKOLP';
+       Write('введите имя входного файла : ');
+       ReadLn(inf);
+       Write('введите имя выходного файла : ');
+       ReadLn(outf);
+       Write('кодировать или декодировать  (C or D): ');
+       ReadLn(ch);
+       if upcase(ch)='C' then code(inf, outf)
+       else if upcase(ch)='D' then decode(inf, outf);
+     end.
+
+
+-----------------------------------------------------------------
+     Данная программа создает шифр множественной замены:
+     { шифр множественной замены }
+     program subs3;
+     type
+       str80=string[80];
+
+     var
+       inf, outf: str80;
+       alphabet, sub, sub2: str80;
+       ch: char;
+
+     {данная функция  возвращает
+      индекс в  алфавите подстановки }
+     function find(alphabet: str80; ch: char): integer;
+     var
+       t: integer;
+
+     begin
+       find:= -1;  { код ошибки }
+       for t:= 1 to 27 do if ch=alphabet[t] then find:= t;
+     end;  {find}
+
+     {This function returns TRUE if ch is a letter
+      of the alphabet.}
+     function isalpha(ch: char): boolean;
+     begin
+       isalpha:= (upcase(ch)>='A') and (upcase(ch)<='Z');
+     end;  {is alpha}
+
+     procedure code(inf, outf: str80);
+     var
+       infile, outfile: file of char;
+       ch: char;
+       change: boolean;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+     change  := TRUE;
+     while not eof(infile) do
+     begin
+       Read(infile,ch);
+       ch := upcase(ch);
+
+       { переключение алфавитов при каждом пробеле }
+
+       if ch=' ' then change  := not change;
+       if isalpha(ch) then
+       begin
+         if change then
+          ch:=sub[find(alphabet,ch)]
+         else
+          ch:=sub2[find(alphabet,ch)];
+       end;
+       Write(outfile, ch);
+     end;
+       WriteLn('файл закодирован ');
+       close(infile); close(outfile);
+     end;  {code}
+
+     procedure decode(inf, outf: str80);
+     var
+       infile, outfile: file of char;
+       ch: char;
+       change: boolean;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       change  := TRUE;
+       while not eof(infile) do
+       begin
+         Read(infile, ch);
+         ch  := upcase(ch);
+         if ch=' ' then change  := not change;
+         if isalpha(ch) then
+         begin
+           if change then
+             ch:=alphabet[find(sub, ch)] {find substitution}
+           else
+             ch:=alphabet[find(sub2, ch)]; {second sub}
+         end;
+         Write(outfile, ch);
+       end;
+       WriteLn('файл декодирован ');
+       close(infile); close(outfile);
+     end;
+
+     begin
+       alphabet:='ABCDEFGHIJKLMNOPQRSTUVWXYZ ';
+       sub     :='QAZWSXEDCRFVTGBYHNUJM IKOLP'; {алфавит #1}
+       sub2    :='POI UYTREWQASDFGHJKLMNBVCXZ'; {алфавит #2}
+
+       Write('введите имя входного файла : ');
+       ReadLn(inf);
+       Write('введите имя выходного файла : ');
+       ReadLn(outf);
+       Write('кодировать или декодировать (C or D): ');
+       ReadLn(ch);
+       if upcase(ch)='C' then code(inf, outf)
+       else if upcase(ch)='D' then decode(inf, outf);
+     end.
+
+
+-----------------------------------------------------------------
+     {шифр skytale}
+     { примечание:  наибольшее сообщение, которое может быть за-
+       кодировано, состоит из 100 байт }
+     program skytale;
+     type
+        str100 = string[100];
+        str80 = string[80];
+
+     var
+       inf, outf:str80;
+       sky: str100;
+       t: integer;
+       ch: char;
+
+     procedure code(inf, outf: str80);
+     var
+       infile, outfile: file of char;
+       ch: char;
+       t, t2: integer;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       t := 1;
+       { считывание текстового файла, как одномерной матрицы }
+       while (not eof(infile)) and (t<=100) do
+       begin
+         Read(infile, sky[t]);
+         t  := t+1;
+       end;
+
+       { запись в матрицу размера 5х20 }
+       for t  := 1 to 5 do
+          for t2  := 0 to 19 do
+            Write(outfile, sky[t+(t2*5)]);
+
+       WriteLn('файл закодирован');
+       close(infile); close(outfile);
+     end; {code}
+
+     procedure decode(inf, outf: str80);
+     var
+       infile, outfile: file of char;
+       ch: char;
+       t, t2: integer;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       { считывание матрицы размером 5х20 }
+       for t  := 1 to 5 do
+         for t2  := 0 to 19 do
+           Read(infile, sky[t+(t2*5)]);
+
+       { вывод в качестве строки }
+       for t  := 1 to 100 do Write(outfile, sky[t]);
+
+       WriteLn('файл декодирован');
+       close(infile); close(outfile);
+     end;  {decode}
+
+     begin
+       {  заполнение символов "#" }
+       for t  := 1 to 100 do sky[t]  := '#';
+       Write('введите имя входного файла: ');
+       ReadLn(inf);
+       Write('введите имя выходного файла: ');
+       ReadLn(outf);
+       Write('кодировать или декодировать (C or D): ');
+       ReadLn(ch);
+       if upcase(ch)='C' then code(inf, outf)
+       else if upcase(ch)='D' then decode(inf, outf);
+     end.
+
+-----------------------------------------------------------------
+     {шифр  перемешивания.  Длина сообщения не должна превышать
+      100 символов
+     }
+
+     program transpose;
+     type
+       str100 = string[100];
+       str80 = string[80];
+
+     var
+       inf, outf: str80;
+       message: str100;
+       ch: char;
+       t: integer;
+
+     procedure code(inf, outf: str80);
+     var
+       infile, outfile: file of char;
+       temp: char;
+       t, t2: integer;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       t := 1;
+       while (not eof(infile)) and (t<=100) do begin
+         Read(infile, message[t]);
+         t := t+1;
+       end;
+       message[t-1] :=  {удаление знака конца файла }
+
+       { теперь перемешиваются символы }
+       for t2  := 0 to 4 do
+         for t  := 1 to 4 do
+         begin
+           temp := message[t+t2*20];
+           message[t+t2*20] := message[t+10+t2*20];
+           message[t+10+t2*20] := temp;
+         end;
+
+       {now write it out}
+       for t := 1 to 100 do Write(outfile, message[t]);
+
+       WriteLn('файл закодирован');
+       close(infile); close(outfile);
+       end; {code}
+
+     procedure decode(inf, outf: str80);
+     var
+       infile, outfile: file of char;
+        temp: char;
+        t, t2: integer;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       t  := 1;
+       while (not eof(infile)) and (t<=100) do
+       begin
+         Read(infile, message[t]);
+         t := t+1;
+       end;
+       message[t-1]  := '#'; {удаление знака конца файла }
+
+       {теперь перемешиваются символы }
+       for t2 := 0 to 4 do
+         for t := 1 to 4 do
+         begin
+           temp := message[t+t2*20];
+           message[t+t2*20] := message[t+10+t2*20];
+           message[t+10+t2*20] := temp;
+         end;
+
+       {  теперь осуществляем вывод }
+       for t := 1 to 100 do Write(outfile, message[t]);
+
+       WriteLn('файл декодирован');
+       close(infile); close(outfile);
+     end; {decoded}
+
+     begin
+       for t := 1 to 100 do message[t] := '#';
+       Write('введите имя входного файла : ');
+       ReadLn(inf);
+       Write('введите имя выходного файла : ');
+       ReadLn(outf);
+       Write('кодировать или декодировать (C or D): ');
+       ReadLn(ch);
+       if upcase(ch)='C' then code(inf, outf)
+       else if upcase(ch)='D' then decode(inf, outf);
+     end.
+
+-----------------------------------------------------------------
+     { шифр дополнения до 1 }
+     program complement;
+     type
+       str80 = string[80];
+     var
+       inf,out: str80;
+       ch: char;
+       t: integer;
+
+     procedure code(inf, outf: str80);
+     var
+       infile, outfile: file of byte;
+       ch: byte;
+
+     begin
+       assing(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       while not eof(infile) do
+       begin
+         Read(infile, ch);
+         ch := not ch;
+         Write(outfile, ch);
+       end;
+
+       WriteLn('файл закодирован');
+       close(infile); close(outfile);
+     end; {code}
+
+     procedure decode(inf, outf: str80);
+     var
+       infile, outfile: file of byte;
+       ch: byte;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       while not eof(infile) do
+       begin
+         Read(infile, ch);
+         ch := not ch;
+         Write(outfile, ch);
+       end;
+
+       WriteLn('файл декодирован');
+       close(infile); close(outfile);
+     end; {decoded}
+     begin
+       Write('введите имя входного файла: ');
+       ReadLn(inf);
+       Write('введите имя выходного файла: ');
+       ReadLn(outf);
+       Write('кодировать или декодировать (C or D): ');
+       ReadLn(ch);
+       if upcase(ch)='C' then code(inf, outf)
+       else if upcase(ch)='D' then decode(inf,outf);
+     end.
+
+-----------------------------------------------------------------
+     { шифр на основе операции XOR с ключем }
+     program xor_wiht_key;
+     type
+       str80 = string[80];
+
+     var
+       inf, outf: str80;
+       key: byte;
+       ch: char;
+       t: integer;
+
+     procedure code(inf, outf: str80; key: byte);
+     var
+       infile, outfile: file of byte;
+       ch: byte;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       while not eof(infile) do
+       begin
+         Read(infile, ch);
+         ch := key xor ch;
+         Write(outfile, ch);
+       end;
+
+       WriteLn('файл закодирован');
+       close(infile); close(outfile);
+     end; {code}
+
+     procedure decode(inf, outf: str80; key: byte);
+     var
+       infile, outfile: file of byte;
+       ch: byte;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       while not eof(infile) do
+       begin
+       Read(infile, ch);
+          ch := key xor ch;
+          Write(outfile, ch);
+       end;
+
+       WriteLn('файл декодирован');
+       close(infile); close(outfile);
+     end; {decode}
+
+     begin
+       Write('введите имя входного файла: ');
+       ReadLn(inf);
+       Write('введите имя выходного файла; ');
+       ReadLn(outf);
+       Write(' введите односимвольный ключ : ');
+       ReadLn(ch);
+       key := ord(ch);
+       Write('кодировать или декодировать (C or D): ');
+       ReadLn(ch);
+       if upcase(ch)='C' then code(inf, outf, key)
+       else if upcase(ch)='D' then decode(inf, outf, key);
+     end.
+
+-----------------------------------------------------------------
+     { данная программа сжимает 8 байт в семь }
+     program compress_file;
+     type
+       str80 = string[80];
+
+     var
+       inf, outf: str80;
+       ch: char;
+       t: integer;
+
+     procedure compress(inf, outf: str80);
+     var
+       infile, outfile: file of byte;
+       ch, ch2: byte;
+       done: boolean;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       done := FALSE;
+       repeat
+         Read(infile, ch);
+         if eof(infile) then
+           done := TRUE
+         else
+         begin
+           ch:=ch shl 1; {выдвижение свободного бита}
+           for t := 0 to 6 do
+           begin
+              if eof(infile) then
+              begin
+                ch2 := 0;
+                done := TRUE;
+              end else Read(infile, ch2);
+              ch2:=ch2 and 127; {сброс старшего бита }
+              ch2:=ch2 or ((ch shl t) and 128); {pack bits}
+              Write(outfile, ch2);
+           end;
+         end; {else}
+       until done;
+
+       WriteLn('file compressed'); 7
+       close(infile); close(outfile);
+     end; {compress}
+
+     procedure decompress(inf, outf: str80);
+     var
+       infile, outfile:file of byte;
+       ch, ch2: byte;
+       s: array[1..7] of byte;
+       done: boolean;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile,outf);
+       rewrite(outfile);
+
+       done := FALSE;
+       repeat
+       ch := 0;
+       for t := 1 to 7 do
+       begin
+         if eof(infile) then
+           done := TRUE
+         else
+         begin
+           Read(infile, ch2);
+           s[t] := ch2 and 127; {сброс старшего бита}
+           ch2 := ch2 and 128; {очистка младших битов}
+           ch2 := ch2 shr t; {распаковка}
+           ch := ch or ch2; {встраивание восьмого байта}
+         end;
+       end;
+       Write(outfile, ch);
+       for t := 1 to 7 do Write(outfile, s[t]);
+       until done;
+
+       WriteLn('file decompressed');
+       close(infile); close(outfile);
+     end; {decompress}
+
+     begin
+       Write('введите имя входного файла: ');
+       ReadLn(inf);
+       Write('введите имя выходного файла: ');
+       ReadLn(outf);
+       Write('сжатие или распаковка (C or D): ');
+       ReadLn(ch);
+       if upcase(ch)='C' then compress(inf, outf)
+       else if upcase(ch)='D' then decompress(inf,outf);
+     end.
+
+-----------------------------------------------------------------
+     {данная программа подсчитывает число символов каждого
+              типа в файле}
+     program countchars;
+
+     type
+       str80 = string[80];
+
+     var
+       inf: str80;
+       t: integer;
+       alpha: array[0..25] of integer;
+       space, period, comma: integer;
+
+     { данная функция возвращает TRUE, если ch является
+       буквой алфавита }
+     function isalpha(ch: char): boolean;
+     begin
+       isalpha:=(upcase(ch)>='A') and (upcase(ch)<='Z');
+     end; {isalpha}
+
+     { подсчет числа встреч каждого символа в файле  }
+     procedure count(inf: str80);
+     var
+       infile: file of char;
+       ch: char;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+
+       while not eof(infile) do
+       begin
+         Read(infile, ch);
+         ch := upcase(ch);
+         if isalpha(ch) then
+           alp a[ord(ch)-ord('A')] := alpha[ord(ch)-ord('A')]+1
+         else case ch of
+           ' ': space := space+1;
+           '.': period := period+1;
+           ',': comma := comma+1;
+         end;
+       end;
+       close(infile);
+     end; {count}
+
+     begin
+       Write('введите имя входного файла: ');
+       ReadLn(inf);
+       for t := 0 to 25 do alpha[t] := 0;
+       space := 0; comma := 0; period := 0;
+       count(inf);
+       for t := 0 to 25 do
+         WriteLn(chr(t+ord('A')), ': ', alpha[t]);
+       WriteLn('space:', space);
+       WriteLn('period:', period);
+       WriteLn('comma:', comma);
+     end.
+
+-----------------------------------------------------------------
+     { программа сжатия и удаления символов }
+     program compres2;
+     type
+       str80 = string[80];
+
+     var
+       inf, outf: str80;
+       ch: char;
+       t: integer;
+
+     procedure comp2(inf, outf: str80);
+     var
+       infile, outfile: file of char;
+       ch: char;
+       done: boolean;
+     begin
+       assign(infile, inf);
+       reset(infile);
+       assign(outfile, outf);
+       rewrite(outfile);
+
+       done := FALSE;
+       repeat
+         if not eof(infile) then
+         begin
+           Read(infile, ch);
+           ch := upcase(ch);
+       if pos(ch,'ABCDEJILMNORSTU')<>0 then Write(outfile,ch);
+           if ord(ch)=13 then Write(outfile, ch); {cr}
+           if ord(ch)=10 then Write(outfile, ch); {lf}
+         end
+         else done := TRUE;
+       until done;
+       WriteLn('файл сжат ');
+       close(infile); close(outfile);
+
+     end; {compress}
+
+     begin
+       Write('введите имя входного файла:');
+       ReadLn(inf);
+       Write('введите имя выходного файла: ');
+       ReadLn(outf);
+       comp2(inf, outf);
+     end.
+
+-----------------------------------------------------------------
+     { программа дешифрования кода для шифра простой замены.
+       сообщения не могут быть длинее 1000 символов }
+
+     program brksub;
+     type
+       str80 = string[80];
+
+     var
+       inf: str80;
+       message: array[1..1000] of char;{взять входное сообщение}
+       ch: char;
+
+     { данная функция возвращает TRUE,
+       если ch является буквой алфавита }
+
+     function isalpha(ch: char): boolean;
+     begin
+       isalpha := (upcase(ch)>='A') and (upcase(ch)<='X');
+     end; {is alpha}
+
+     procedure break(inf: str80);
+     var
+       infile: file of char;
+       ch: char;
+       done: boolean;
+       sub, t, t2, l: integer;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+
+       done := FALSE;
+       l := 1;
+       repeat
+         Read(infile, message[l]);
+         message[l] := upcase(message[l]);
+         l := l+1;
+       until eof(infile);
+       l := l-1; { удалить знак конца файла }
+
+       t := 0; sub := -1;
+       { попробовать каждое возможное смещение }
+       repeat
+         for t2 := 1 to l do begin
+           ch := message[t2];
+           if isalpha(ch) then
+           begin
+             ch := chr(ord(ch)+t);
+             if ch>'Z' then ch := chr(ord(ch)-26);
+           end;
+           Write(ch);
+         end;
+         WriteLn;
+         WriteLn('декодирован? Y/N): ');
+         ReadLn(ch);
+         if upcase(ch)='Y' then sub := t;
+         t := t+1;
+         until (t=26) or (upcase(ch)='Y');
+         if sub<> -1 then Write('offset is ', sub);
+         close(infile);
+
+     end; {break}
+
+     begin
+       Write('введите имя входного файла: ');
+       ReadLn(inf);
+       break(inf);
+     end.
+
+------------------------------------------------------------------
+     {программа дешифрации  кода  для шифров подстановки с произ-
+      вольным алфавитом
+
+     program beksub2;
+     type
+       str80 = string[80];
+
+     var
+       inf: str80;
+       sub: string[26];
+       message:array[1..1000] of char;
+       ch: char;                       { ввод входного сообщения }
+
+     { данная функция возвращает TRUE, если ch является
+       буквой алфавита }
+     function isalpha(ch: char): boolean;
+     begin
+       isalpha := (upcase(ch)>='A') and (upcase(ch)<='Z');
+     end; { is alpha }
+
+     procedure break2(inf: str80);
+     var
+       infile: file of char;
+       ch: char;
+       done: boolean;
+       t, l: integer;
+
+     begin
+       assign(infile, inf);
+       reset(infile);
+
+       done := FALSE;
+
+       l := 1;
+       repeat
+         Read(infile, message[l]);
+         message[l] := upcase(message[l]);
+         l := l+1;
+       until eof(infile);
+       l := l-1; {очистка признака конца файла }
+
+       repeat
+         Write('введите алфавит замены: ');
+         ReadLn(sub);
+         for t := 1 to l do
+
+         begin
+           ch := message[t];
+           if isalpha(ch) then
+            ch := sub[ord(ch)-ord('A')];
+           Write(ch);
+         end;
+         WriteLn;
+         WriteLn('декодирован ? (Y/N): ');
+         ReadLn(ch);
+         if upcase(ch)='Y' then done:=TRUE;
+       until done;
+       WriteLn('алфавит подстановки : ', sub);
+       close(infile);
+     end; {besub2}
+
+     begin
+       Write('введите имя входного файла: ');
+       ReadLn(inf);
+       break2(inf);
+     end.
+
+

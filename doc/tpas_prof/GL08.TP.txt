@@ -1,0 +1,792 @@
+-----------------------------------------------------------------
+    type
+      str80 = string[80];
+      TType = (DELIMITER,VARIABLE,NUMBER);
+    var
+      token, prog: str80;
+      TokType: TType;
+      code, t: integer;
+      result: real;
+
+    {данная функция возвращает TRUE,  если ch является буквой
+                         алфавита}
+    function IsAlpha(ch: char): boolean;
+    begin
+      IsAlpha:= (UpCase(ch)>='A') and (UpCase(ch)<='Z');
+    end; {IsAlpha}
+
+    {данная  функция возвращает TRUE,  если ch является
+     символом новой строки,  табуляции или пробелом       }
+    function IsWhite(ch: char): boolean;
+    begin
+      IsWhite: = (ch=' ') or (ch=chr(9)) or (ch=chr(13));
+    end; {IsWhite}
+
+    {данная функция возвращает TRUE,  если ch является
+                       разделителем}
+
+    function IsDelim(ch: char): boolean;
+    begin
+      if pos(ch, ' +-/*%^=()S')<>0 then IsDelim: = TRUE
+    end; {IsDelim}
+
+    {данная функция возвращает TRUE, если ch - цифра от 0 до 9}
+    function IsDigit(ch: char): boolean;
+    begin
+      IsDigit: = (ch>='0') and (ch<='9');
+    end; {IsDigit}
+
+    {GotToken  считывает следующую лексему из входного потока}
+    procedure GetToken;
+    var
+      temp: str80;
+
+    begin
+      token: = ''; {пустая строка }
+      while(IsWhite(prog[t])) do t:=t+1; {пропустить
+                   предшествующие пробелы}
+
+      if prog[t]='S' then token: = 'S';
+      if pos(prog[t], '+-*/%^=()')<>0 then
+      begin
+       TokType: = DELIMITER;
+       token: = prog[t]; {является оператором }
+       t: = t+1;
+      end else if IsAlpha(prog[t]) then
+      begin
+       While(not IsDelim(prog[t])) do
+       begin
+         token: = concat(token, prog[t]); { построить лексемы }
+         t: = t+1;
+       end;
+       TokType: = VARIABLE;
+      end
+      else if IsDigit(prog[t]) then
+      begin
+       while(not IsDelim[t])) do
+       begin
+         token: = concat(token,prog[t]); { построить число }
+         t: = t+1;
+         TokType: = NUMBER;
+       end;
+      end;
+   end;{GetToken}
+-----------------------------------------------------------------
+ {********** синтаксический анализатор выражений  *************}
+    procedure Level2(var result: real); forward;
+    procedure Level3(var result: real); forward;
+    procedure Level4(var result: real); forward;
+    procedure Level5(var result: real); forvard;
+    procedure Level6(var result: real); forward;
+    procedure Primitve(var result: real); forward;
+
+    {это точка входа в синтаксический анализатор }
+    procedure GetExp(var result: real);
+    begin
+      GetToken;
+      if length(token)<>0 then
+       Level2(result)
+      else
+       Serror(3);
+    end; {GetExp}
+
+    {процесс + или - }
+    procedure Level2;
+    var
+      op: char;
+      hold: real;
+
+    begin
+      Level3(result);
+      op: = token[1];
+      while((op='+') or (op='-') do
+      begin
+       GetToken;
+       Level3(hold);
+       arith(op, result, hold);
+       op: = token[1]
+      end;
+    end; {Level2}
+
+    {процесс * или \ }
+    procedure Level3;
+    var
+      op: char;
+      hold: real;
+
+    begin
+      Level4(result);
+      op: = token[1];
+      while ((op '*') or (op='/')) do
+      begin
+       GetToken;
+       Level4(hold);
+       arith(op, result, hold);
+       op: = token[1];
+      end;
+    end; {Level3}
+
+     {процесс ^ (возведение в степень)}
+     procedure Level4;
+     var
+       hold: real;
+
+     begin
+       Level5(result);
+       if token[1]='^' then
+       begin
+        GetToken;
+        Level4(hold);
+        arith('^', result, hold); {exponents}
+       end;
+     end; {Level4}
+
+     {процесс унарного оператора}
+     procedure Level5;
+     var
+       op: char;
+
+     begin
+       op: = ' ';
+       if((TokType=DELIMITER) and ((token[1]='+') or
+       (token[1]='-')))
+       then begin {unary plus or minus}
+        op:= token[1];
+        GetToken;
+       end;
+       Level6(result);
+       if op='-' then result: = -result;
+     end; {Level5}
+
+     {процесс скобок }
+     procedure Level6;
+     begin
+     if(token[1]='(') and (TokType=DELIMITER) then
+     begin {Parenthesized expression}
+       GetToken;
+       Level2(result);
+       if token[1]<>')'then Serror(2);{скобки не сбалансированы}
+       GetToken;
+      end
+      else Primitive(result);
+     end; {Level6}
+
+     { найти значение числа}
+     procedure Primitive;
+     begin
+       if TokType=DELIMITER then
+        val(token, result, code)
+       else Serror(1);
+       GetToken;
+     end.
+
+------------------------------------------------------------------
+     {отображение  сообщений  об  ошибках }
+     Procedure Serror(i: integer);
+     begin
+       case i of
+        1: WriteLn('синтаксическая ошибка    ');
+        2: WriteLn('несбалансированные скобки');
+        3: WriteLn('выражение  отсутствует   ');
+       end;
+     end; {Serror}
+
+     {возведение в степень }
+     function Pwr(a, b: real): real;
+     var
+       t: integer;
+       temp: real;
+     begin
+       if a=0 then Pwr: = 1 else
+       begin
+        temp: = a;
+        for t: = trunc(b) cownto 2 do a: = a*temp;
+        Pwr: = a;
+       end;
+     end;
+
+     {данная функция выполняет заданные арифметические операции}
+     procedure Arith(op: char; var result, operand: real);
+     begin
+       case op of
+        '+': result: = result+operand;
+        '-': result: = result-operand;
+        '*': result: = result*operand;
+        '/': result: = result/operand;
+        '^': result: = result^operand;
+       end;
+     end; {Arith}
+
+     { Данная программа демонстрирует работу синтаксического
+      анализатора. Она не принимает  переменных  и  поддерживает
+           числа только типа real (действительные)}
+
+     program parser;
+
+     type
+       str80 = string[80];
+       TType = (DELIMITER, VARIABLE, NUMBER);
+
+     var
+       token, prog: str80;
+       TokType: TType;
+       code, t: integer;
+       result: real;
+
+    {данная функция возвращает TRUE,  если ch является буквой
+                         алфавита}
+    function IsAlpha(ch: char): boolean;
+    begin
+      IsAlpha:= (UpCase(ch)>='A') and (UpCase(ch)<='Z');
+    end; {IsAlpha}
+
+    {данная  функция возвращает TRUE,  если ch является
+     символом новой строки,  табуляции или пробелом       }
+    function IsWhite(ch: char): boolean;
+    begin
+      IsWhite: = (ch=' ') or (ch=chr(9)) or (ch=chr(13));
+    end; {IsWhite}
+
+    {данная функция возвращает TRUE,  если ch является
+                       разделителем}
+
+    function IsDelim(ch: char): boolean;
+    begin
+      if pos(ch, ' +-/*%^=()S')<>0 then IsDelim: = TRUE
+    end; {IsDelim}
+
+    {данная функция возвращает TRUE, если ch - цифра от 0 до 9}
+    function IsDigit(ch: char): boolean;
+    begin
+      IsDigit: = (ch>='0') and (ch<='9');
+    end; {IsDigit}
+
+    {GotToken  считывает следующую лексему из входного потока}
+    procedure GetToken;
+    var
+      temp: str80;
+
+    begin
+      token: = ''; {пустая строка }
+      while(IsWhite(prog[t])) do t:=t+1; {пропустить
+                   предшествующие пробелы}
+
+      if prog[t]='S' then token: = 'S';
+      if pos(prog[t], '+-*/%^=()')<>0 then
+      begin
+       TokType: = DELIMITER;
+       token: = prog[t]; {является оператором }
+       t: = t+1;
+      end else if IsAlpha(prog[t]) then
+      begin
+       While(not IsDelim(prog[t])) do
+       begin
+         token: = concat(token, prog[t]); { построить лексемы }
+         t: = t+1;
+       end;
+       TokType: = VARIABLE;
+      end
+      else if IsDigit(prog[t]) then
+      begin
+       while(not IsDelim[t])) do
+       begin
+         token: = concat(token,prog[t]); { построить число }
+         t: = t+1;
+         TokType: = NUMBER;
+       end;
+       end;
+     end; {GetToken}
+
+     {отображение  сообщений  об  ошибках }
+     Procedure Serror(i: integer);
+     begin
+       case i of
+        1: WriteLn('синтаксическая ошибка    ');
+        2: WriteLn('несбалансированные скобки');
+        3: WriteLn('выражение  отсутствует   ');
+       end;
+     end; {Serror}
+
+     {возведение в степень }
+     function Pwr(a, b: real): real;
+     var
+       t: integer;
+       temp: real;
+     begin
+       if a=0 then Pwr: = 1 else
+       begin
+        temp: = a;
+        for t: = trunc(b) cownto 2 do a: = a*temp;
+        Pwr: = a;
+       end;
+     end;
+
+     {данная функция выполняет заданные арифметические операции}
+     procedure Arith(op: char; var result, operand: real);
+     begin
+       case op of
+        '+': result: = result+operand;
+        '-': result: = result-operand;
+        '*': result: = result*operand;
+        '/': result: = result/operand;
+        '^': result: = result^operand;
+       end;
+     end; {Arith}
+
+
+ {********** синтаксический анализатор выражений  *************}
+     procedure Level2(var result: real); forward;
+     procedure Level3(var result: real); forward;
+     procedure Level4(var result: real); forward;
+     procedure Level5(var result: real); forward;
+     procedure Level6(var result: real); forward;
+     procedure Primitive(var result: real); forward;
+
+    {это точка входа в синтаксический анализатор }
+     procedure GetExp(var result: real);
+     begin
+       GetToken;
+       if Length(token)<>0 then
+        Level2(result)
+       else
+        Serror(3);
+     end; {GetExp}
+
+    {процесс + или - }
+     procedure Level2;
+     var
+       op: char;
+       hold: real;
+
+     begin
+       Level3(result);
+       op:= token[1];
+       while(op='+') or (op='-') do
+       begin
+        GetToken;
+        Level3(hold);
+        arith(op, result, hold);
+        op: = token[1];
+       end;
+     end; {Level2}
+
+
+    {процесс * или \ }
+     procedure Level3;
+     var
+       op: char;
+       hold: real;
+
+     begin
+       Level4(result);
+       op: = token[1];
+       while (op='*') or (op='/') do
+       begin
+        GetToken;
+        Level4(hold);
+        arith(op,result,hold);
+        op: = token[1];
+       end;
+     end; {Level3}
+
+     {процесс ^ (возведение в степень)}
+     procedure Level4;
+     var
+       hold: real;
+
+     begin
+       Level5(result);
+       if token[1]='^' then
+       begin
+        GetToken;
+        Level4(hold);
+        arith('^',result,hold); {exponents}
+       end;
+     end; {Level4}
+
+     {процесс унарного оператора}
+     procedure Level5;
+     var
+       op: char;
+
+     begin
+       op: = ' ';
+       if((TokType=DELIMITER) and ((token[1]='+') or
+                             (token[1]='-')))
+       then begin
+
+        op: = token[1],
+        GetToken;
+       end;
+       Level6(result);
+       if op='-' then result: = -result;
+     end; {Level5}
+
+     {процесс скобок }
+     procedure Level6;
+     begin
+       if(token[1]='(') and (TokType=DELIMITER) then
+       begin {заключенное в скобки  выражение }
+         GetToken;
+         Level2(result);
+       if token[1]<>')'then Serror(2);{несбалансированные
+                          скобки}
+
+         GetToken;
+       end
+       else Primitive(result);
+
+     end; {Level6}
+
+     { найти значение числа }
+     procedure Primitive;
+     begin
+       if TokType=NUMBER then
+        val(token, result, code)
+       else Serror(1);
+       GetToken;
+     end;
+
+     begin {nain}
+       repeat
+        t:=1; {инициализировать счетчик лексем }
+        Write('Введите выражение: ');
+        ReadLn(prog);
+        prog:=concat(prog, '$');
+        if(prog<>'quit$') then
+        begin
+          GetExp(result);
+          writeLn(result);
+        end;
+       until prog='quit$'
+     end.
+
+     Программа позволяет вам ввести численное выражение,  для ко-
+-----------------------------------------------------------------
+     { процесс предложения присваивания }
+     procedure Level1;
+     var
+       hold: real;
+       temp: Type;
+       slot: integer;
+       TempToken: str80;
+
+     begin
+       if TokType=VARIABLE then
+       begin
+        {сохранить  старую лексему}
+        TempToken:=token;
+        temp:=TokType;
+        slot:=ord(Upcase(token[1]))-ord)'A');
+        GetToken; {проверить,существует ли = для присваивания }
+         if token[1]<>'"' then
+        begin
+          PutBack; {заменить лексему }
+          {восстановить старую лексему}
+          token := TempToken;
+          TokType := temp;
+          Level2(result);
+        end else
+        begin
+          GetToken;
+          Level2(result);
+          vars[slot] := result;
+        end;
+       end {if}
+       else Level2(result);
+     end; {Level1}
+
+-----------------------------------------------------------------
+     {данная программа демонстрирует синтаксический анализатор
+      который допускает применение переменных  }
+     program parser2;
+
+     type
+       str80 = string[80];
+       TType = (DELIMITER, VARIABLE, NUMBER);
+     var
+       token, prog: str80;
+       TokType: TType;
+       code, t: integer;
+       result: real;
+       vars: array[0..25] of real; {26 переменных}
+
+    {данная функция возвращает TRUE,  если ch является буквой
+                         алфавита}
+    function IsAlpha(ch: char): boolean;
+    begin
+      IsAlpha:= (UpCase(ch)>='A') and (UpCase(ch)<='Z');
+    end; {IsAlpha}
+
+    {данная  функция возвращает TRUE,  если ch является
+     символом новой строки,  табуляции или пробелом       }
+    function IsWhite(ch: char): boolean;
+    begin
+      IsWhite: = (ch=' ') or (ch=chr(9)) or (ch=chr(13));
+    end; {IsWhite}
+
+    {данная функция возвращает TRUE,  если ch является
+                       разделителем}
+
+    function IsDelim(ch: char): boolean;
+    begin
+      if pos(ch, ' +-/*%^=()S')<>0 then IsDelim: = TRUE
+    end; {IsDelim}
+
+    {данная функция возвращает TRUE, если ch - цифра от 0 до 9}
+    function IsDigit(ch: char): boolean;
+    begin
+      IsDigit: = (ch>='0') and (ch<='9');
+    end; {IsDigit}
+
+    {GotToken  считывает следующую лексему из входного потока}
+    procedure GetToken;
+    var
+      temp: str80;
+
+    begin
+      token: = ''; {пустая строка }
+      while(IsWhite(prog[t])) do t:=t+1; {пропустить
+                   предшествующие пробелы}
+
+      if prog[t]='S' then token: = 'S';
+      if pos(prog[t], '+-*/%^=()')<>0 then
+      begin
+       TokType: = DELIMITER;
+       token: = prog[t]; {является оператором }
+       t: = t+1;
+      end else if IsAlpha(prog[t]) then
+      begin
+       While(not IsDelim(prog[t])) do
+       begin
+         token: = concat(token, prog[t]); { построить лексемы }
+         t: = t+1;
+       end;
+       TokType: = VARIABLE;
+      end
+      else if IsDigit(prog[t]) then
+      begin
+       while(not IsDelim[t])) do
+       begin
+         token: = concat(token,prog[t]); { построить число }
+         t: = t+1;
+         TokType: = NUMBER;
+       end;
+       end;
+     end; {GetToken}
+
+     { PutBack возвращает лексему во входной поток }
+     procedure PutBack;
+     begin
+       t := t-length(token);
+     end; {PutBack}
+
+     {отображение  сообщений  об  ошибках }
+     Procedure Serror(i: integer);
+     begin
+       case i of
+        1: WriteLn('синтаксическая ошибка    ');
+        2: WriteLn('несбалансированные скобки');
+        3: WriteLn('выражение  отсутствует   ');
+       end;
+     end; {Serror}
+
+     {возведение в степень }
+     function Pwr(a, b: real): real;
+     var
+       t: integer;
+       temp: real;
+     begin
+       if a=0 then Pwr: = 1 else
+       begin
+        temp: = a;
+        for t: = trunc(b) cownto 2 do a: = a*temp;
+        Pwr: = a;
+       end;
+     end;
+
+     {данная функция выполняет заданные арифметические операции}
+     procedure Arith(op: char; var result, operand: real);
+     begin
+       case op of
+        '+': result: = result+operand;
+        '-': result: = result-operand;
+        '*': result: = result*operand;
+        '/': result: = result/operand;
+        '^': result: = result^operand;
+       end;
+     end; {Arith}
+
+     {FindVar возвращает значение переменной}
+     function FindVar(s: str80): real;
+     var
+       t: integer;
+     begin
+       FindVar:=vars[ord(Upcase(s[1]))-ord('A')];
+     end; {FindVar}
+
+
+ {********** синтаксический анализатор выражений  *************}
+     {**** with variables and assignment *******}
+     procedure Level2(var result: real); forward;
+     procedure Level1(var result: real); forward;
+     procedure Level3(var result: real); forward;
+
+     procedure Level4(var result: real); forward;
+     procedure Level5(var result: real); forward;
+     procedure Level6(var result: real); forward;
+     procedure Primitive(var result: real); forward;
+
+    {это точка входа в синтаксический анализатор }
+     procedure GetExp(var result: real);
+     begin
+       GetToken;
+       if Length(token)<>0 then
+        Level1(result)
+       else
+        Serror(3);
+     end; {GetExp}
+
+     { процесс предложения присваивания }
+     procedure Level1;
+     var
+       hold: real;
+       temp: Type;
+       slot: integer;
+       TempToken: str80;
+
+     begin
+       if TokType=VARIABLE then
+       begin
+        {сохранить  старую лексему}
+        TempToken:=token;
+        temp:=TokType;
+        slot:=ord(Upcase(token[1]))-ord)'A');
+        GetToken; {проверить,существует ли = для присваивания }
+         if token[1]<>'"' then
+        begin
+          PutBack; {заменить лексему }
+          {восстановить старую лексему}
+          token := TempToken;
+          TokType := temp;
+          Level2(result);
+        end else
+        begin
+          GetToken;
+          Level2(result);
+          vars[slot] := result;
+        end;
+       end {if}
+       else Level2(result);
+     end; {Level1}
+
+    {процесс + или - }
+     procedure Level2;
+     var
+       op: char;
+       hold: real;
+     begin
+       Level3(result);
+       op := token[1];
+       while(op='+') or (op='-') do
+       begin
+        GetToken;
+        Level3(hold);
+        arith(op, result, hold);
+        op := token[1]
+       end;
+     end; {Level2}
+
+    {процесс * или \ }
+     procedure Level3;
+     var
+       op: char;
+       hold: real;
+
+     begin
+       Level4(result);
+       op := token[1];
+       while ((op='*') or (op='/')) do
+       begin
+        GetToken;
+        Level4(hold);
+        arith(op, result, hold);
+        op := token[1];
+       end;
+     end; {Level3}
+
+     {процесс ^ (возведение в степень)}
+     procedure Level4;
+     var
+       hold: real;
+
+     begin
+       Level5(result);
+       if token[1]='^' then
+       begin
+        GetToken;
+        Level4(hold);
+        arith('^', result, hold);
+       end;
+     end; {Level4}
+
+     {процесс унарного оператора}
+     procedure Level5;
+     var
+       op: char;
+
+     begin
+       op := ' ';
+       if ((TokType=DELIMITER) and ((token[1]='+') or
+                               (token[1]='-')))
+       then begin
+        op := token[1];
+        GetToken;
+       end;
+       Level6(result);
+       if op='-' then result := -result;
+     end; {Level5}
+
+     {процесс скобок }
+     procedure Level6;
+     begin
+       if(token[1]='(') and (TokType=DELIMITER) then
+       begin {заключенное в скобки выражение}
+        GetToken;
+        Level2(result);
+     if token[1]<>')' then Serror(2); {скобки не сбалансированы}
+        GetToken;
+       end
+       else Primitive(result);
+     end; {Level6}
+
+     procedure Primitive;
+     begin
+       if TokType=NUMBER then
+        val(token, result, code)
+       else if TokType=VARIABLE then
+          result := FindVar(token)
+       else
+          Serror(1);
+       GetToken;
+     end;
+
+     begin {главная}
+       for t:=0 to 25 do vars[t]:=0; {инициализировать
+                        переменные}
+
+       repeat
+        t := 1;
+        Write('Введите выражение: '); 38
+        ReadLn(prog);
+        prog := concat(prog, '$');
+        if(prog<>'quit$') then
+        begin
+          GetExp(result);
+          writeLn(result);
+        end;
+       until prog='quit$';
+     end.
+
+
+

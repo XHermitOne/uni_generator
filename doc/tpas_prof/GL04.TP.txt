@@ -1,0 +1,262 @@
+-----------------------------------------------------------------
+
+     {программа,  которая обеспечивает связь с внешней подпрог-
+      раммой, написанной на ассемблере
+     }
+     program asmtest;
+
+     {SL XMUL}
+
+     var
+       a, b, c: integer;
+
+     function xmul(x, y: integer): integer; external;
+
+     begin
+       a: = 40;
+       b: = 20;
+       c: = xmul(a,b); {умножение "а" на "в" и получение
+                  результата}
+       WriteLn(c);
+     end.
+-----------------------------------------------------------------
+
+     { пример встроенного кода ассемблера }
+     program asm_inline;
+
+     var
+       a, b, c: integer;
+
+     function Mul(x, y: integer): integer;
+     begin
+       inline($80/$46/$04/   {mov ax,[bp]+4}
+              $F6/366/$06/   {mul [bp]+6   }
+              $89/$EC/       {mov sp,bp}
+              $56/           {pop bp}
+              $02/$06/$00/   {ret 6}
+
+       end;
+
+     begin
+       a: = 10;
+       b: = 20;
+       c: = Mul(a,b);
+       WriteLn(c);
+     end.
+
+
+-----------------------------------------------------------------
+     procedure fan(temp:integer);
+    {вентилятор  включается,  когда  температура достигнет 100
+              градусов }
+     begin
+       if temp>=100 then
+         inline(100/00/01/  {mov AX,1}
+                $E7/$C8);   {out 200,AX}
+     end;
+
+   { демонстрация процедуры  MsDos }
+    program kb;
+
+    uses Dos;
+
+    function KbHit:boolean; { функция  специфична  для DOS }
+    var
+      regs: registers;
+    begin
+      regs.AY:=SB;
+      MsDos(regs);
+      if regs.AL=0 then KbHit:=FALSE
+      else KbHit:=TRUE;
+    end;
+
+    begin
+      repeat
+        Write('.');
+      until KbHit;
+    end.
+
+-----------------------------------------------------------------
+
+     program modetest;
+
+     {SL MODE}
+
+     procedure Mode(ModeSet:integer):external;
+
+     begin
+       Mode(6);
+       WriteLn('hi'); read;
+       Mode(3);
+     end.
+
+     Ниже приводится  внешняя  функция "mode",  написанная на ас-
+семблере:
+
+     ; Эта процедура делает установку режима экрана, используя
+     ; 1 целочисленный параметр.
+     code    segment 'code'
+             assume cs:code
+     public  mode
+     mode    proc near
+
+    ; сохранить стек
+             push bp
+             mov bp,sp
+    ; получить режим
+             mov ax,[bp]+4
+             mov ah,0    ; команда для переключения режима
+             int 010h    ; вызов базовой системы ввода-вывода
+    ; восстановление и выход
+             pop bp
+             ret 2
+     mode    endp
+     code    ends
+             end
+
+     Ниже приводится  функция,  которая очищает экран посредством
+процедуры "clr":
+
+     program clr_screen;
+
+     {SL CLR}
+
+     procedure Clr; external;
+
+     begin
+       WriteLn('нажмите ВВОД для чистки экрана');
+       ReadLn;
+       Clr;
+       WriteLn('экран полностью очищен');
+     end.
+
+     Ниже приводится  внешняя процедура "clr",  написанная на ас-
+семблере.
+
+        ; прерывание с номером 6
+          cseq segment 'code'
+          assume cs:cseq
+
+          public clr
+
+          clr proc near
+        ; сохранить используемые регистры
+                 push ax
+                 push bx
+                 push cx
+                 push dx
+                 mov cx, 0  ; начать с начала координат
+                 mov dh, 24 ; конец в строке 24
+                 mov dl, 79 ; столбец 79
+                 mov ah, 0  ; установить режим просмотра
+                 mov al, 0  ; очистить экран
+                 mov bh, 7
+                 int 10h
+
+         ; восстановление и выход
+                 pop ax
+                 pop bx
+                 pop cx
+                 pop dx
+          clr endp
+          cseq ends
+                 enu
+
+
+-----------------------------------------------------------------
+           program gotoxy;
+
+           {$l XY}
+
+           var
+             t: integer;
+
+           procedure xy(x, y): integer); external ;
+
+           begin
+             for t := 0 to 24 do begin
+               xy(t,t);
+               write(t);
+             end;
+           end.
+
+     Ниже приводится внешняя процедура "xy",  написанная  на  ас-
+семблере:
+
+
+     ; эта функция  устанавливает курсор в координаты (Х,Y)
+     сode       cseq segment 'code'
+                assume cs:cseq
+
+     public     xy
+     xy         proc near
+
+     ; сохранение указателя стека
+                puch bp
+                mov bp,sp
+
+     ; получить первый параметр
+                mov dh,[up]+4  ; получить Х
+                mov dl,[up]+8  ; получить Y
+                mov ah,2       ; указатель точки перехода для
+                               ; BIOS
+                mov bh,0       ; номер страницы
+                int 10h
+
+                pop bp
+                ret 4
+
+     xy         endp
+     code       ends
+                end
+
+
+-----------------------------------------------------------------
+     ; эта процедура выдает шестнадцатибитовый код,  младший байт
+     ; которого содержит либо символ ASCII,  либо нулевое  значе-
+     ; ние. В последнем случае старший байт содержит код сканиро-
+     ; вания
+
+     code    segment 'code'
+             assume cs:code
+
+     public  scan
+     scan    proc near
+
+     ; сохранить указатель  стека
+             push bp
+             mov bp,sp
+
+     ; получить первый параметр
+            mov ah,0
+            int 16h
+            mov [bx+2],ax; возвращаемое значение
+     ; восстановление и выход
+            pop bp
+            ret 2
+     scan   endp
+     code   endx
+            end
+
+
+-----------------------------------------------------------------
+
+     program special_keys;
+
+     {SL SCAN}
+
+     var
+       t: integer;
+
+     function Scan:integer; external;
+
+     begin
+       repeat
+         t: = Scan;
+         if lo(t)=0 then WriteLn('scan code is', hi(t))
+         else WriteLn(chr(lo(t)));
+       until chr(lo(t))='q';
+     end.
+
+
+
