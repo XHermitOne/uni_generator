@@ -31,6 +31,8 @@ const
 
   UNKNOWN_GROUP_NAME: AnsiString = 'UNKNOWN_GROUP';
 
+  GENERATE_SIGNATURE: AnsiString = 'GEN: ';
+
 type
   {
   Класс взаимодействия с OPC сервером.
@@ -157,8 +159,9 @@ var
   tags: TStrDictionary;
   grp: TGroup;
   tag_item: TTagItem;
-  value: AnsiString;
+  key, value: AnsiString;
   group_name: AnsiString;
+  tag_address: AnsiString;
 
 begin
   Result := TStringList.Create;
@@ -177,8 +180,22 @@ begin
     grp := TGroup.Create(group_name, 500, 0);
     for i := 0 to tags.Count - 1 do
     begin
-      //log.ServiceMsgFmt('Добавление тега в OPC клиент <%s> : <%s>', [tags.GetKey(i), tags.GetStrValue(tags.GetKey(i))]);
-      tag_item := TTagItem.Create(tags.GetKey(i), tags.GetStrValue(tags.GetKey(i)), VT_BSTR, acRead);
+      tag_address := tags.GetStrValue(tags.GetKey(i));
+      // Обработка ссылок
+      if strfunc.IsStartsWith(tag_address, obj_proto.LINK_SIGNATURE) then
+      begin
+        // Сразу сохранить в состоянии для генерации других адресов
+        key := tags.GetKey(i);
+        value := GetLinkValue(tag_address);
+        State.SetStrValue(key, value);
+        continue;
+      end;
+
+      // Обработка генерации
+      if strfunc.IsStartsWith(tag_address, GENERATE_SIGNATURE) then
+        tag_address := strfunc.Generate(State, strfunc.StripStr(strfunc.ReplaceStart(tag_address, GENERATE_SIGNATURE, '')));
+      log.DebugMsgFmt('Добавление тега в OPC клиент <%s> : <%s>', [tags.GetKey(i), tag_address]);
+      tag_item := TTagItem.Create(tags.GetKey(i), tag_address, VT_BSTR, acRead);
       grp.AddTag(tag_item);
     end;
     FOPCClient.TagList.AddGroup(grp);
@@ -187,8 +204,14 @@ begin
 
     for i := 0 to tags.Count - 1 do
     begin
-      // Чтение значения тега
-      value := FOPCClient.GetTagString(FOPCClient.FindSGroupSTag(group_name, tags.GetKey(i)));
+      // Обработка ссылок
+      key := tags.GetKey(i);
+      tag_address := tags.GetStrValue(key);
+      if strfunc.IsStartsWith(tag_address, obj_proto.LINK_SIGNATURE) then
+        value := State.GetStrValue(key)
+      else
+        // Чтение значения тега
+        value := FOPCClient.GetTagString(FOPCClient.FindSGroupSTag(group_name, key));
       Result.Add(value);
     end;
     FOPCClient.Disconnect;

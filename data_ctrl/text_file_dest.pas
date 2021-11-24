@@ -22,7 +22,6 @@ const
 
   RESERV_PROPERTIES: Array [1..6] Of String = ('type', 'name', 'description', 'filename', 'dirname', 'template');
 
-  LINK_SIGNATURE: AnsiString = 'LINK: ';
   FILE_SIGNATURE: AnsiString = 'FILE: ';
 
 
@@ -66,7 +65,7 @@ uses
   DateUtils,
   JTemplate,
 
-  engine,
+  //engine,
   log,
   sysfunc,
   filefunc;
@@ -93,9 +92,9 @@ var
   i: Integer;
   key, value: AnsiString;
   tags: TStrDictionary;
-  source_name, tag_name: AnsiString;
-  link:  TArrayOfString;
-  engine: TICEngineProto;
+  //source_name, tag_name: AnsiString;
+  //link:  TArrayOfString;
+  //engine: TICEngineProto;
 
 begin
   tags := TStrDictionary.Create;
@@ -105,17 +104,19 @@ begin
     if not IsStrInList(key, RESERV_PROPERTIES) then
     begin
       value := Properties.GetStrValue(key);
+
       if strfunc.IsStartsWith(value, LINK_SIGNATURE) then
-      begin
-        { Обрабатываем ссылку на тег объекта }
-        value := strfunc.StripStr(strfunc.ReplaceStart(value, LINK_SIGNATURE, ''));
-        link := strfunc.SplitStr(value, '.');
-        source_name := link[0];
-        tag_name := link[1];
-        engine := GetParent() As TICEngineProto;
-        value := engine.FindSource(source_name).State.GetStrValue(tag_name);
-        log.DebugMsgFmt('Получено значение <%s> по ссылке <%s.%s>', [value, source_name, tag_name]);
-      end;
+      //begin
+        value := GetLinkValue(value);
+        //{ Обрабатываем ссылку на тег объекта }
+        //value := strfunc.StripStr(strfunc.ReplaceStart(value, LINK_SIGNATURE, ''));
+        //link := strfunc.SplitStr(value, '.');
+        //source_name := link[0];
+        //tag_name := link[1];
+        //engine := GetParent() As TICEngineProto;
+        //value := engine.FindSource(source_name).State.GetStrValue(tag_name);
+        //log.DebugMsgFmt('Получено значение <%s> по ссылке <%s.%s>', [value, source_name, tag_name]);
+      //end;
       tags.AddStrValue(key, value);
     end;
   end;
@@ -240,7 +241,12 @@ begin
       string_stream.Destroy;
     end;
 
-    for i := 0 to AContext.Count - 1 do
+    // ВНИМАНИЕ! Переменные д.б. отсортированы в обратном порядке по длине имени переменной
+    // иначе замена переменных будет не корректна
+    AContext.Sort();
+
+    // Добавление переменных из контекста
+    for i := AContext.Count - 1 downto 0 do
     begin
       variable_name := AContext.GetKey(i);
       value := AContext.GetStrValue(variable_name);

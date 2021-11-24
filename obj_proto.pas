@@ -17,6 +17,8 @@ const
   DATETIME_TXT_FMT: AnsiString = 'yyyy-mm-dd hh:nn:ss';
   DATE_TXT_SEPARATOR: Char = '-';
 
+  LINK_SIGNATURE: AnsiString = 'LINK: ';
+
 type
   {
   Абстрактный объект системы.
@@ -163,6 +165,9 @@ type
     { Получить имена записываемых значений в контроллер данных }
     function GetReadValues(): TStringList;
 
+    { Получить ссылку на тег другого объекта }
+    function GetLinkValue(ALink: AnsiString): AnsiString;
+
   published
     property Name: AnsiString read GetName write SetName;
     property Properties: TStrDictionary read GetProperties write SetProperties;
@@ -175,7 +180,11 @@ end;
 implementation
 
 uses
-  log, memfunc;
+  engine,
+  exttypes,
+  strfunc,
+  log,
+  memfunc;
 
 constructor TICObjectProto.Create;
 begin
@@ -422,6 +431,30 @@ function TICObjectProto.WriteAll(dtTime: TDateTime): Boolean;
 begin
   log.WarningMsgFmt('Вызов не определенного метода WriteAll объекта <%s>', [FName]);
   Result := False;
+end;
+
+{ Получить ссылку на тег другого объекта }
+function TICObjectProto.GetLinkValue(ALink: AnsiString): AnsiString;
+var
+  value: AnsiString;
+  source_name, tag_name: AnsiString;
+  link:  TArrayOfString;
+  engine: TICEngineProto;
+
+begin
+  value := ALink;
+
+  if strfunc.IsStartsWith(value, LINK_SIGNATURE) then
+    value := strfunc.StripStr(strfunc.ReplaceStart(value, LINK_SIGNATURE, ''));
+
+  { Обрабатываем ссылку на тег объекта }
+  link := strfunc.SplitStr(value, '.');
+  source_name := link[0];
+  tag_name := link[1];
+  engine := GetParent() As TICEngineProto;
+  value := engine.FindSource(source_name).State.GetStrValue(tag_name);
+  log.DebugMsgFmt('Получено значение <%s> по ссылке <%s.%s>', [value, source_name, tag_name]);
+  Result := value;
 end;
 
 end.

@@ -21,6 +21,8 @@ uses
 
 type
   TICPascalScript = class(TPSScript)
+  private
+    FContext: dictionary.TStrDictionary;
 
   protected
     procedure CompilePascalScript(Sender: TPSScript);
@@ -30,10 +32,10 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
 
-  end;
+  published
+    property Context: dictionary.TStrDictionary read FContext write FContext;
 
-//procedure CompilePascalScript(Sender: TPSScript);
-//procedure VerifyPascalScript(Sender: TPSScript; Proc: TPSInternalProcedure;  const Decl: TBtString; var Error: Boolean);
+  end;
 
 {
 Выполнить скрипт Pascal.
@@ -41,21 +43,14 @@ type
 @param Context: Контекст выполнения скрипта.
 @return: Строковое представление результата выполнения скрипта.
 }
-//function ExecutePascalScript(Script: AnsiString; Context: TStrDictionary): AnsiString;
-function ExecutePascalScript(Script: AnsiString; Params: Array of Variant): AnsiString;
-
-type
-  //TScriptFunction = function (Context: AnsiString): AnsiString of object;
-  TScriptFunction = function (Context: AnsiString): AnsiString;
-
-var
-  script: TScriptFunction;
+function ExecutePascalScript(Script: AnsiString; Context: dictionary.TStrDictionary = nil): Variant;
 
 
 implementation
 
 uses
-  log;
+  log,
+  strfunc;
 
 constructor TICPascalScript.Create(AOwner: TComponent);
 begin
@@ -71,25 +66,25 @@ end;
 
 procedure TICPascalScript.CompilePascalScript(Sender: TPSScript);
 begin
-  Sender.AddFunction(@log.ServiceMsg,
-                     'procedure ServiceMsg(sMsg: AnsiString; bForcePrint: Boolean = False; bForceLog: Boolean = False);');
+  //Sender.AddFunction(@log.ServiceMsg,
+  //                   'procedure ServiceMsg(sMsg: AnsiString; bForcePrint: Boolean = False; bForceLog: Boolean = False);');
 
 end;
 
 procedure TICPascalScript.VerifyPascalScript(Sender: TPSScript; Proc: TPSInternalProcedure;  const Decl: String; var Error: Boolean);
 begin
-  if Proc.Name = 'SCRIPTFUNCTION' then begin
-    if not ExportCheck(Sender.Comp, Proc, [btString], [pmIn]) then
-    begin
-      Sender.Comp.MakeError('', ecCustomError, 'Function header for ScriptFunction does not match.');
-      Error := True;
-    end
-    else
-    begin
-      Error := False;
-    end;
-  end
-  else
+  //if Proc.Name = 'SCRIPTFUNCTION' then begin
+  //  if not ExportCheck(Sender.Comp, Proc, {$IFDEF UNICODE}[btUnicodeString, btUnicodeString]{$ELSE}[btString, btString]{$ENDIF}, [pmIn]) then
+  //  begin
+  //    Sender.Comp.MakeError('', ecCustomError, 'Function header for ScriptFunction does not match.');
+  //    Error := True;
+  //  end
+  //  else
+  //  begin
+  //    Error := False;
+  //  end;
+  //end
+  //else
     Error := False;
 end;
 
@@ -99,21 +94,28 @@ end;
 @param Context: Контекст выполнения скрипта.
 @return: Строковое представление результата выполнения скрипта.
 }
-//function ExecutePascalScript(Script: AnsiString; Context: TStrDictionary): AnsiString;
-function ExecutePascalScript(Script: AnsiString; Params: Array of Variant): AnsiString;
+function ExecutePascalScript(Script: AnsiString; Context: TStrDictionary): Variant;
 var
   pascal_script: TICPascalScript;
   script_text: AnsiString;
   compiled: Boolean;
   i: Integer;
-  //method: TMethod;
-  return_value: Variant;
+  params: Array of Variant;
 
 begin
-  Result := '';
+  Result := nil;
 
+  // Заполнение тела функции
   script_text := 'program Script;'#13#10;
-  script_text := script_text + 'function ScriptFunction(Context: AnsiString): AnsiString;'#13#10;
+  script_text := script_text + 'function ScriptFunction(';
+  if Context <> nil then
+    for i := 0 to Context.Count - 1 do
+    begin
+      script_text := script_text + Context.GetKey(i) + ': String';
+      if i < (Context.Count - 1) then
+        script_text := script_text + ', ';
+    end;
+  script_text := script_text + '): String;'#13#10;
   script_text := script_text + 'begin'#13#10;
   script_text := script_text + Script;
   script_text := script_text + #13#10;
@@ -122,36 +124,45 @@ begin
   script_text := script_text + 'end.';
   log.InfoMsgFmt('Script <%s>', [script_text]);
 
-  pascal_script := TICPascalScript(nil);
+  pascal_script := TICPascalScript.Create(nil);
+  pascal_script.Context := Context;
 
   try
+    // Компиляция
     pascal_script.Script.Text := script_text;
     compiled := pascal_script.Compile;
 
+    // Вывод ошибок компиляции
     for i := 0 to pascal_script.CompilerMessageCount -1 do
-      log.InfoMsgFmt('PascalScript. Компиляция <%s>', [pascal_script.CompilerMessages[i].MessageToString]);
+      if strfunc.IsStartsWith(pascal_script.CompilerMessages[i].MessageToString, '[Error]') then
+        log.ErrorMsgFmt('PascalScript. Компиляция <%s>', [pascal_script.CompilerMessages[i].MessageToString])
+      else
+        log.WarningMsgFmt('PascalScript. Компиляция <%s>', [pascal_script.CompilerMessages[i].MessageToString]);
     if compiled then
       log.InfoMsg('Succesfully compiled');
 
     if compiled then
     begin
-      //method := pascal_script.GetProcMethod('SCRIPTFUNCTION');
-      //script := TScriptFunction(pascal_script.GetProcMethod('SCRIPTFUNCTION'));
-      //script := method As TScriptFunction;
-      //if @script = nil then
-      //begin
-      //  raise Exception.Create('Unable to call ScriptFunction');
-      //end;
-      //Result := script('BlahBlahBlah');
-      return_value := pascal_script.ExecuteFunction(Params, 'SCRIPTFUNCTION');
-      Result := Variants.VarToStr(return_value);
-
-      log.InfoMsgFmt('Result: <%s>', [Result]);
+      // Выполнить функцию
+      if Context <> nil then
+      begin
+        SetLength(params, Context.Count);
+        for i := 0 to Context.Count - 1 do
+        begin
+          params[i] := Context[i];
+          log.InfoMsgFmt('Param: <%s : %s>', [Context.GetKey(i), Variants.VarToStr(params[i])]);
+        end;
+      end
+      else
+        SetLength(params, 0);
+      Result := pascal_script.ExecuteFunction(params, 'SCRIPTFUNCTION');
+      log.InfoMsgFmt('Result: <%s>', [Variants.VarToStr(Result)]);
     end;
 
   except
     log.FatalMsgFmt('Ошибка выполнения выражения <%s>', [Script]);
   end;
+  // Обязательно удаляем объект скрипта
   pascal_script.Destroy();
 end;
 

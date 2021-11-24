@@ -173,15 +173,6 @@ begin
     Exit;
   end;
 
-  if HasOption('t', 'test') then
-  begin
-    s := execfunc.ExecutePascalScript('Result := ''Test'';', []);
-    PrintColorTxt(Format('Тест: %s', [s]), CYAN_COLOR_TEXT);
-
-    Terminate;
-    Exit;
-  end;
-
   if HasOption('d', 'debug') then
     DEBUG_MODE := True;
 
@@ -190,6 +181,15 @@ begin
 
   if HasOption('s', 'settings') then
     settings.SETTINGS_INI_FILENAME := Trim(GetOptionValue('s', 'settings'));
+
+  if HasOption('t', 'test') then
+  begin
+    s := execfunc.ExecutePascalScript('Result := ''OK'';');
+    PrintColorTxt(Format('Тест: %s', [s]), CYAN_COLOR_TEXT);
+
+    Terminate;
+    Exit;
+  end;
 
   if LOG_MODE then
     OpenLog(ChangeFileExt(ParamStr(0), '.log'));
