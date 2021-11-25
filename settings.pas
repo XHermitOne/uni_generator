@@ -1,7 +1,7 @@
 {
 Модуль поддержки настроек программы
 
-Версия: 0.0.3.2
+Версия: 0.0.3.3
 }
 unit settings;
 
@@ -94,7 +94,7 @@ var
   { Имя файла настроек }
   SETTINGS_INI_FILENAME: AnsiString = 'settings.ini';
 
-  SETTINGS_MANAGER: TICSettingsManager;
+  //SETTINGS_MANAGER: TICSettingsManager;
 
 
 implementation
@@ -105,12 +105,16 @@ uses
 constructor TICSettingsManager.Create;
 begin
   inherited Create;
-  FContent := TIniDictionary.Create;
+  FContent := TIniDictionary.Create('Настройки программы');
 end;
 
 destructor TICSettingsManager.Destroy;
 begin
-  FContent.Destroy;
+  if FContent <> nil then
+  begin
+    FContent.Destroy;
+    FContent := nil;
+  end;
 
   // ВНИМАНИЕ! Нельзя использовать функции Free.
   // Если объект создается при помощи Create, то удаляться из
@@ -235,8 +239,14 @@ var
   parent_section_name: AnsiString;
 
 begin
+  if strfunc.IsEmptyStr(sSectionName) then
+  begin
+    Result := nil;
+    Exit;
+  end;
+
   // Создаем объект секции
-  section := TStrDictionary.Create;
+  section := TStrDictionary.Create(sSectionName);
   if FContent.HasKey(sSectionName) then
   begin
     // Если запрашиваеммая секция есть в INI файле, то обновить объект секции
@@ -295,18 +305,23 @@ begin
     begin
       // Список имен
       parent_section_list := ParseStrArray(section.GetStrValue('parent'));
-      result_section := TStrDictionary.Create;
+      result_section := TStrDictionary.Create(sSectionName);
       for i := 0 to Length(parent_section_list) - 1 do
       begin
         parent_section_name := parent_section_list[i];
         parent_section := BuildSection(parent_section_name);
-        result_section.Update(parent_section);
-        // !!! После обновления результирующей секции необходимо освободить память
-        parent_section.Destroy;
+        if parent_section <> nil then
+        begin
+          result_section.Update(parent_section);
+          // !!! После обновления результирующей секции необходимо освободить память
+          parent_section.Destroy;
+          parent_section := nil;
+        end;
       end;
       result_section.Update(section);
       // !!! После обновления результирующей секции необходимо освободить память
       section.Destroy;
+      section := nil;
       result_section.DelItem('parent');
       Result := result_section;
       Exit;
@@ -315,16 +330,21 @@ begin
     begin
       // Имя родительской секции
       parent_section := BuildSection(section.GetStrValue('parent'));
-      parent_section.Update(section);
-      // !!! После обновления результирующей секции необходимо освободить память
-      section.Destroy;
-      parent_section.DelItem('parent');
+      if parent_section <> nil then
+      begin
+        parent_section.Update(section);
+        // !!! После обновления результирующей секции необходимо освободить память
+        section.Destroy;
+        section := nil;
+        parent_section.DelItem('parent');
+      end;
       Result := parent_section;
       Exit;
     end;
 
   // Все другие случаи считаем ошибочные
   section.Destroy;
+  section := nil;
   Result := nil;
 end;
 

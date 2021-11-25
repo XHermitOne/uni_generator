@@ -107,8 +107,8 @@ uses
 
 constructor TICOPCDANode.Create;
 begin
-  inherited Create;
   FOPCClient := nil;
+  inherited Create;
 end;
 
 destructor TICOPCDANode.Destroy;
@@ -280,7 +280,7 @@ begin
     if Properties <> nil then
       Properties.Clear
     else
-      Properties := TStrDictionary.Create;
+      Properties := TStrDictionary.Create(Format('Свойства обекта <%s>', [self.Name]));
 
     for i := 0 to Length(sAddresses) - 1 do
     begin
@@ -363,7 +363,7 @@ var
 
 begin
   //log.DebugMsg('Создание тегов');
-  tags := TStrDictionary.Create;
+  tags := TStrDictionary.Create(Format('Теги объекта <%s>', [self.Name]));
   for i := 0 to Properties.Count - 1 do
   begin
     key := Properties.GetKey(i);

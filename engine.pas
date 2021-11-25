@@ -1,7 +1,7 @@
 {
 Модуль классов движка
 
-Версия: 0.0.3.1
+Версия: 0.0.3.2
 }
 
 unit engine;
@@ -189,8 +189,8 @@ begin
   FSettingsManager := TICSettingsManager.Create;
 
   // Словарь зарегистрированных объектов
-  FSources := TStrDictionary.Create;
-  FDestinations := TStrDictionary.Create;
+  FSources := TStrDictionary.Create('Источники данных');
+  FDestinations := TStrDictionary.Create('Получатели данных');
 
   //
   FRunning := False;
@@ -201,7 +201,13 @@ destructor TICEngineProto.Destroy;
 begin
   DestroySources();
   DestroyDestinations();
-  FSettingsManager.Destroy;
+
+  if FSettingsManager <> nil then
+  begin
+    FSettingsManager.Destroy;
+    FSettingsManager := nil;
+  end;
+
   // ВНИМАНИЕ! Нельзя использовать функции Free.
   // Если объект создается при помощи Create, то удаляться из
   // памяти должен с помощью Dуstroy
@@ -353,8 +359,11 @@ begin
   for i := 0 to ObjectNames.Count - 1 do
   begin
     obj_properties := FSettingsManager.BuildSection(ObjectNames[i]);
-    //FSettingsManager.PrintSettings;
-    //obj_properties.PrintContent;
+    if obj_properties = nil then
+    begin
+      log.WarningMsgFmt('Не определены свойства объекта-источника данных <%s> в настройках', [ObjectNames[i]]);
+      continue;
+    end;
 
     // Создаем объекты источников данных
     obj := CreateDataCtrl(obj_properties);
@@ -399,6 +408,11 @@ begin
   for i := 0 to ObjectNames.Count - 1 do
   begin
     obj_properties := FSettingsManager.BuildSection(ObjectNames[i]);
+    if obj_properties = nil then
+    begin
+      log.WarningMsgFmt('Не определены свойства объекта-получателя данных <%s> в настройках', [ObjectNames[i]]);
+      continue;
+    end;
 
     // Создаем объекты получателей данных
     obj := CreateDataCtrl(obj_properties);
@@ -426,6 +440,8 @@ begin
   Result := False;
   if FSources <> nil then
   begin
+    log.InfoMsgFmt('[%s]. Удаление источников данных', [self.ClassName]);
+    // FSources.ClearContent();
     FSources.Destroy;
     FSources := nil;
     Result := True;
@@ -441,6 +457,8 @@ begin
   Result := False;
   if FDestinations <> nil then
   begin
+    log.InfoMsgFmt('[%s]. Удаление получателей данных', [self.ClassName]);
+    // FDestinations.ClearContent();
     FDestinations.Destroy;
     FDestinations := nil;
     Result := True;

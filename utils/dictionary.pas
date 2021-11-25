@@ -1,7 +1,7 @@
 {
 Модуль поддержки словарей
 
-Версия: 0.0.3.1
+Версия: 0.0.4.1
 }
 unit dictionary;
 
@@ -21,6 +21,9 @@ type
       { Значение }
       FValue: AnsiString;
     public
+      constructor Create();
+      destructor Destroy; override;
+
       property Value: AnsiString read FValue write FValue;
   end;
 
@@ -32,6 +35,9 @@ type
       { Значение }
       FValue: TDateTime;
     public
+      constructor Create();
+      destructor Destroy; override;
+
       property Value: TDateTime read FValue write FValue;
   end;
 
@@ -43,6 +49,9 @@ type
       { Значение }
       FValue: TStringList;
     public
+      constructor Create();
+      destructor Destroy; override;
+
       { Значение. Свойство }
       property Value: TStringList read FValue write FValue;
     end;
@@ -51,8 +60,12 @@ type
   TStrDictionary - Простой словарь в качастве ключей у которого строки.
   }
   TStrDictionary = class(TStringList)
+    private
+      { Наименование словаря для отслеживания освобождения памяти }
+      FName: AnsiString;
+
     public
-      constructor Create();
+      constructor Create(AName: AnsiString = '');
       destructor Destroy; override;
 
       {
@@ -170,9 +183,56 @@ uses
   log;
   //memfunc;
 
-
-constructor TStrDictionary.Create();
+constructor TObjString.Create();
 begin
+  inherited Create;
+end;
+
+destructor TObjString.Destroy;
+begin
+  // ВНИМАНИЕ! Нельзя использовать функции Free.
+  // Если объект создается при помощи Create, то удаляться из
+  // памяти должен с помощью Dуstroy
+  // Тогда не происходит утечки памяти
+  inherited Destroy;
+end;
+
+constructor TObjDateTime.Create();
+begin
+  inherited Create;
+end;
+
+destructor TObjDateTime.Destroy;
+begin
+  // ВНИМАНИЕ! Нельзя использовать функции Free.
+  // Если объект создается при помощи Create, то удаляться из
+  // памяти должен с помощью Dуstroy
+  // Тогда не происходит утечки памяти
+  inherited Destroy;
+end;
+
+constructor TObjStringList.Create();
+begin
+  inherited Create;
+end;
+
+destructor TObjStringList.Destroy;
+begin
+  if FValue <> nil then
+  begin
+    FValue.Destroy;
+    FValue := nil;
+  end;
+  // ВНИМАНИЕ! Нельзя использовать функции Free.
+  // Если объект создается при помощи Create, то удаляться из
+  // памяти должен с помощью Dуstroy
+  // Тогда не происходит утечки памяти
+  inherited Destroy;
+end;
+
+constructor TStrDictionary.Create(AName: AnsiString);
+begin
+  FName := AName;
   inherited Create;
 end;
 
@@ -197,6 +257,8 @@ var
   obj: TObject;
 
 begin
+  // log.InfoMsgFmt('Очистка содержимого словаря <%s>', [FName]);
+
   Result := False;
   if Count > 0 then
     if not bAutoFree then
@@ -209,10 +271,14 @@ begin
       // Перебираем элементы начиная с последнего
       for i := Count - 1 downto 0 do
       begin
+        // log.InfoMsgFmt('Удаление объекта <%s> из словаря', [self.GetKey(i)]);
         obj := Objects[i];
-        obj.Destroy;
         Delete(i);
+
+        obj.Destroy;
+        obj := nil;
       end;
+      Result := True;
     end;
 end;
 

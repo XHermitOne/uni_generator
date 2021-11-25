@@ -1,7 +1,7 @@
 {
 Модуль абстрактного объекта системы
 
-Версия: 0.0.3.2
+Версия: 0.0.3.3
 }
 unit obj_proto;
 
@@ -194,8 +194,12 @@ begin
   FDescription := '';
 
   FReadValues := TStringList.Create;
-  FState := TStrDictionary.Create;
-  //FTimeStateBuffer := TStrDictionary.Create;
+  //ВНИМАНИЕ! Нельзя создавать объект! Т.к. он переопределяется словарем тегов
+  // и поэтому происходит утечка памяти!
+  // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+  // FState := TStrDictionary.Create(Format('Состояние объекта <%s>', [self.Name]));
+  FState := nil;
+  // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 end;
 
 destructor TICObjectProto.Destroy;
@@ -210,11 +214,6 @@ begin
     FState.Destroy;
     FState := nil;
   end;
-  //if FTimeStateBuffer <> nil then
-  //begin
-  //  FTimeStateBuffer.Destroy;
-  //  FTimeStateBuffer := nil;
-  //end;
 
   if FProperties <> nil then
   begin

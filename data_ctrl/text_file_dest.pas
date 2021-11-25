@@ -1,7 +1,7 @@
 {
 Модуль класса генерации тектовых файлов по шаблону.
 
-Версия: 0.0.0.1
+Версия: 0.0.1.1
 }
 unit text_file_dest;
 
@@ -65,11 +65,10 @@ uses
   DateUtils,
   JTemplate,
 
-  //engine,
   log,
   sysfunc,
-  filefunc;
-  //inifunc;
+  filefunc,
+  execfunc;
 
 constructor TICTextFileDest.Create;
 begin
@@ -92,12 +91,9 @@ var
   i: Integer;
   key, value: AnsiString;
   tags: TStrDictionary;
-  //source_name, tag_name: AnsiString;
-  //link:  TArrayOfString;
-  //engine: TICEngineProto;
 
 begin
-  tags := TStrDictionary.Create;
+  tags := TStrDictionary.Create(Format('Теги объекта <%s>', [self.Name]));
   for i := 0 to Properties.Count - 1 do
   begin
     key := Properties.GetKey(i);
@@ -105,18 +101,10 @@ begin
     begin
       value := Properties.GetStrValue(key);
 
-      if strfunc.IsStartsWith(value, LINK_SIGNATURE) then
-      //begin
-        value := GetLinkValue(value);
-        //{ Обрабатываем ссылку на тег объекта }
-        //value := strfunc.StripStr(strfunc.ReplaceStart(value, LINK_SIGNATURE, ''));
-        //link := strfunc.SplitStr(value, '.');
-        //source_name := link[0];
-        //tag_name := link[1];
-        //engine := GetParent() As TICEngineProto;
-        //value := engine.FindSource(source_name).State.GetStrValue(tag_name);
-        //log.DebugMsgFmt('Получено значение <%s> по ссылке <%s.%s>', [value, source_name, tag_name]);
-      //end;
+      if strfunc.IsStartsWith(value, obj_proto.LINK_SIGNATURE) then
+        value := GetLinkValue(value)
+      else if strfunc.IsStartsWith(value, execfunc.EXEC_SIGNATURE) then
+        value := execfunc.ExecutePascalScript(value, tags);
       tags.AddStrValue(key, value);
     end;
   end;

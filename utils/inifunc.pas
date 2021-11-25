@@ -1,7 +1,7 @@
 {
 Классы работы с INI файлами
 
-Версия: 0.0.3.2
+Версия: 0.0.3.3
 }
 unit inifunc;
 
@@ -27,8 +27,8 @@ type
 
     public
 
-      constructor Create();
-      constructor Create(sINIFileName: AnsiString);
+      constructor Create(AName: AnsiString = '');
+      constructor Create(AName: AnsiString; sINIFileName: AnsiString);
       destructor Destroy; override;
 
       {
@@ -67,21 +67,19 @@ implementation
 uses
   log, filefunc, strfunc;
 
-constructor TIniDictionary.Create();
+constructor TIniDictionary.Create(AName: AnsiString);
 begin
-  inherited Create;
+  inherited Create(AName);
 end;
 
-constructor TIniDictionary.Create(sINIFileName: AnsiString);
+constructor TIniDictionary.Create(AName: AnsiString; sINIFileName: AnsiString);
 begin
-  inherited Create;
+  inherited Create(AName);
   LoadIniFile(sINIFileName);
 end;
 
 destructor TIniDictionary.Destroy;
 begin
-  ClearContent(True);
-
   // ВНИМАНИЕ! Нельзя использовать функции Free.
   // Если объект создается при помощи Create, то удаляться из
   // памяти должен с помощью Dуstroy
@@ -128,7 +126,7 @@ begin
       for i_section :=0 to section_list.Count - 1 do
       begin
         section_name := section_list[i_section];
-        section_dict := TStrDictionary.Create;
+        section_dict := TStrDictionary.Create(Format('INI. Секция [%s]', [section_name]));
 
         option_list.Clear;
         ini_file.ReadSectionValues(section_name, option_list);

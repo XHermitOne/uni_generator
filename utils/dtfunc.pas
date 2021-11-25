@@ -1,7 +1,7 @@
 {
 Модуль функция работы со временными данными
 
-Версия: 0.0.2.2
+Версия: 0.0.3.1
 }
 
 unit dtfunc;
@@ -100,6 +100,20 @@ type
   // Список даты-времени
   DATETIME_ARRAY = Array[0..65535] of TDateTime;
   PDATETIME_ARRAY = ^DATETIME_ARRAY;
+
+// Дополнительные функции
+{ Получить текущее время в виде строки }
+function GetNowStr(): AnsiString;
+
+{ Получить текущeю дату в виде строки }
+function GetTodayStr(): AnsiString;
+
+{ Получить текущее время в виде форматированной строки }
+function GetNowFormat(sDateTimeFmt: AnsiString): AnsiString;
+
+{ Получить текущeю дату в виде форматированной строки }
+function GetTodayFormat(sDateTimeFmt: AnsiString): AnsiString;
+
 
 implementation
 
@@ -822,6 +836,30 @@ begin
     Result := DateUtils.IncDay(Result, -(FMonth * FDaysInMonth));
   if FYear <> 0 then
     Result := DateUtils.IncYear(Result, -FYear);
+end;
+
+{ Получить текущее время в виде строки }
+function GetNowStr(): AnsiString;
+begin
+  Result := DateTimeToStr(Now);
+end;
+
+{ Получить текущeю дату в виде строки }
+function GetTodayStr(): AnsiString;
+begin
+  Result := DateTimeToStr(Today);
+end;
+
+{ Получить текущее время в виде форматированной строки }
+function GetNowFormat(sDateTimeFmt: AnsiString): AnsiString;
+begin
+  Result := FormatDateTime(sDateTimeFmt, Now);
+end;
+
+{ Получить текущeю дату в виде форматированной строки }
+function GetTodayFormat(sDateTimeFmt: AnsiString): AnsiString;
+begin
+  Result := FormatDateTime(sDateTimeFmt, Today);
 end;
 
 end.

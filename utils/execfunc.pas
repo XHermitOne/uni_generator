@@ -1,7 +1,7 @@
 {
 Функции выполнения Python скриптов.
 
-Версия: 0.0.0.1
+Версия: 0.0.1.3
 }
 unit execfunc;
 
@@ -18,6 +18,9 @@ uses
   dictionary,
   SysUtils,
   Variants;
+
+const
+  EXEC_SIGNATURE: AnsiString = 'EXEC: ';
 
 type
   TICPascalScript = class(TPSScript)
@@ -50,7 +53,8 @@ implementation
 
 uses
   log,
-  strfunc;
+  strfunc,
+  dtfunc;
 
 constructor TICPascalScript.Create(AOwner: TComponent);
 begin
@@ -66,8 +70,23 @@ end;
 
 procedure TICPascalScript.CompilePascalScript(Sender: TPSScript);
 begin
+  // Добавить стандартные функции в область видимости скрипта
+  //   Функции работы со строками
+  Sender.AddFunction(@Format,
+                     'function Format(const Format: String; const Args: Array of const): String;');
+  //   Функции работы с датой/временем
+  Sender.AddFunction(@dtfunc.GetNowStr,
+                     'function GetNowStr(): String;');
+  Sender.AddFunction(@dtfunc.GetTodayStr,
+                     'function GetTodayStr(): String;');
+  Sender.AddFunction(@dtfunc.GetNowFormat,
+                     'function GetNowFormat(sDateTimeFmt: String): String;');
+  Sender.AddFunction(@dtfunc.GetTodayFormat,
+                     'function GetTodayFormat(sDateTimeFmt: String): String;');
+
   //Sender.AddFunction(@log.ServiceMsg,
   //                   'procedure ServiceMsg(sMsg: AnsiString; bForcePrint: Boolean = False; bForceLog: Boolean = False);');
+
 
 end;
 
@@ -105,6 +124,10 @@ var
 begin
   Result := nil;
 
+  // Отбросить сигнатуру если она присутствует
+  if strfunc.IsStartsWith(Script, EXEC_SIGNATURE) then
+     Script := strfunc.ReplaceStart(Script, EXEC_SIGNATURE, '');
+
   // Заполнение тела функции
   script_text := 'program Script;'#13#10;
   script_text := script_text + 'function ScriptFunction(';
@@ -113,7 +136,7 @@ begin
     begin
       script_text := script_text + Context.GetKey(i) + ': String';
       if i < (Context.Count - 1) then
-        script_text := script_text + ', ';
+        script_text := script_text + '; ';
     end;
   script_text := script_text + '): String;'#13#10;
   script_text := script_text + 'begin'#13#10;
@@ -149,7 +172,7 @@ begin
         SetLength(params, Context.Count);
         for i := 0 to Context.Count - 1 do
         begin
-          params[i] := Context[i];
+          params[i] := Context.GetStrValue(Context.GetKey(i));
           log.InfoMsgFmt('Param: <%s : %s>', [Context.GetKey(i), Variants.VarToStr(params[i])]);
         end;
       end
