@@ -74,6 +74,8 @@ begin
   //   Функции работы со строками
   Sender.AddFunction(@Format,
                      'function Format(const Format: String; const Args: Array of const): String;');
+  Sender.AddFunction(@strfunc.Replace,
+                     'function Replace(sTxt: AnsiString; sSrcStr: AnsiString; sDstStr: AnsiString): String;');
   //   Функции работы с датой/временем
   Sender.AddFunction(@dtfunc.GetNowStr,
                      'function GetNowStr(): String;');

@@ -243,6 +243,8 @@ begin
       log.InfoMsgFmt('Добавлена переменная в шаблонизатор <%s : %s>', [variable_name, value]);
     end;
 
+    // Отключаем замену псевдо-символов
+    template_stream.Parser.HtmlSupports := False;
     template_stream.Parser.Replace;
     template_stream.SaveToFile(sDestFilename);
   except

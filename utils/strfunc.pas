@@ -1,7 +1,7 @@
 {
 Функции работы со строками
 
-Версия: 0.0.7.1
+Версия: 0.0.8.1
 }
 unit strfunc;
 
@@ -151,6 +151,26 @@ function ReplaceStart(sTxt: AnsiString; sSrcStr: AnsiString; sDstStr: AnsiString
 @return Строка с произведенными заменами
 }
 function ReplaceEnd(sTxt: AnsiString; sSrcStr: AnsiString; sDstStr: AnsiString = ''): AnsiString;
+
+{
+Заменить подстроку sSrcStr на sDstStr в sTxt. Произвести все замены.
+
+@param sTxt Исходный текст
+@param sSrcStr Исходная подстрока
+@param sDstStr Результирующая подстрока. По умолчанию пустая строка.
+@return Строка с произведенными заменами
+}
+function Replace(sTxt: AnsiString; sSrcStr: AnsiString; sDstStr: AnsiString = ''): AnsiString;
+
+{
+Заменить подстроку sSrcStr на sDstStr в sTxt. Произвести все замены без учета регистра.
+
+@param sTxt Исходный текст
+@param sSrcStr Исходная подстрока
+@param sDstStr Результирующая подстрока. По умолчанию пустая строка.
+@return Строка с произведенными заменами
+}
+function ReplaceIgnoreCase(sTxt: AnsiString; sSrcStr: AnsiString; sDstStr: AnsiString = ''): AnsiString;
 
 {
 Проверка на пустую строку.
@@ -446,6 +466,32 @@ begin
   Result := sTxt;
   if IsEndsWith(sTxt, sSrcStr) then
     Result := Copy(sTxt, Length(sTxt) - Length(sSrcStr), Length(sSrcStr)) + sDstStr;
+end;
+
+{
+Заменить подстроку sSrcStr на sDstStr в sTxt. Произвести все замены.
+
+@param sTxt Исходный текст
+@param sSrcStr Исходная подстрока
+@param sDstStr Результирующая подстрока. По умолчанию пустая строка.
+@return Строка с произведенными заменами
+}
+function Replace(sTxt: AnsiString; sSrcStr: AnsiString; sDstStr: AnsiString = ''): AnsiString;
+begin
+  Result := StringReplace(sTxt, sSrcStr, sDstStr, [rfReplaceAll]);
+end;
+
+{
+Заменить подстроку sSrcStr на sDstStr в sTxt. Произвести все замены без учета регистра.
+
+@param sTxt Исходный текст
+@param sSrcStr Исходная подстрока
+@param sDstStr Результирующая подстрока. По умолчанию пустая строка.
+@return Строка с произведенными заменами
+}
+function ReplaceIgnoreCase(sTxt: AnsiString; sSrcStr: AnsiString; sDstStr: AnsiString = ''): AnsiString;
+begin
+  Result := StringReplace(sTxt, sSrcStr, sDstStr, [rfReplaceAll, rfIgnoreCase]);
 end;
 
 {

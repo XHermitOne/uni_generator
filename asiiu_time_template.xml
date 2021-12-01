@@ -36,17 +36,17 @@
         	<as:Position>
                 	<as:Product>
                    		<prod:UnitType>@unit_type_str</prod:UnitType>
-		                <prod:FullName>@prod_name</prod:FullName>
+		                <prod:FullName>@prod_name_str</prod:FullName>
                 		<prod:AlcCode>@prod_code_str</prod:AlcCode>
                    		<prod:AlcVolume>@alc_volume_round</prod:AlcVolume>
                    		<prod:ProductVCode>@prod_type_str</prod:ProductVCode>
  	                </as:Product>
                         <as:ControlDate>@control_dt</as:ControlDate>
-                        <as:VbsControl>@sspirit_20_beg</as:VbsControl>
-                        <as:AControl>@salc_20</as:AControl>
-                        <as:PercentAlc>@mean_strength</as:PercentAlc>
+                        <as:VbsControl>@vbs_control_str</as:VbsControl>
+                        <as:AControl>@a_control_str</as:AControl>
+                        <as:PercentAlc>@percent_alc_str</as:PercentAlc>
                         <as:BottleCountControl>@summ_bottles_count</as:BottleCountControl>
-                        <as:Temperature>@cur_temperature</as:Temperature>
+                        <as:Temperature>@cur_temperature_str</as:Temperature>
                         <as:Mode>@mode_str</as:Mode>
 		</as:Position>
 	</as:Data>
