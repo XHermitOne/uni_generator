@@ -43,6 +43,8 @@ uses
   log,
   // Компоненты - источники данных
   opc_da_node,
+  find_filenames_src,
+  delete_files_dst,
   //opc_hda_node,
   //opc_wt_hda_node,
   //db_mysql_node,
@@ -65,16 +67,21 @@ begin
     { Создание и инициализация OPC DA сервера }
     Result := opc_da_node.TICOPCDANode.Create;
   end
+  else if sTypeName = find_filenames_src.FIND_FILENAMES_SRC_NODE_TYPE then
+  begin
+    { Создание и инициализация узла поиска файлов по маске }
+    Result := find_filenames_src.TICFindFilenamesNode.Create;
+  end
   else if sTypeName = text_file_dest.TEXT_FILE_TYPE then
   begin
     { Создание и инициализация генератора тектового файла }
     Result := text_file_dest.TICTextFileDest.Create;
   end
-  //else if sTypeName = opc_hda_node.OPC_HDA_NODE_TYPE then
-  //begin
-  //  { Создание и инициализация OPC HDA сервера }
-  //  Result := opc_hda_node.TICOPCHDANode.Create;
-  //end
+  else if sTypeName = delete_files_dst.DELETE_FILES_DST_NODE_TYPE then
+  begin
+    { Создание и инициализация узла удаления не актуальных файлов }
+    Result := delete_files_dst.TICDeleteFilesDst.Create;
+  end
   //else if sTypeName = opc_wt_hda_node.OPC_WT_HDA_NODE_TYPE then
   //begin
   //  { Создание и инициализация OPC HDA сервера }

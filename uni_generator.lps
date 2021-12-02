@@ -3,7 +3,7 @@
   <ProjectSession>
     <Version Value="11"/>
     <BuildModes Active="Default"/>
-    <Units Count="33">
+    <Units Count="35">
       <Unit0>
         <Filename Value="uni_generator.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -16,9 +16,10 @@
       <Unit1>
         <Filename Value="utils/dictionary.pas"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="8"/>
-        <TopLine Value="238"/>
-        <CursorPos X="6" Y="260"/>
+        <TopLine Value="210"/>
+        <CursorPos X="3" Y="230"/>
         <UsageCount Value="1394"/>
         <Loaded Value="True"/>
       </Unit1>
@@ -40,10 +41,10 @@
       <Unit4>
         <Filename Value="utils/filefunc.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="19"/>
-        <CursorPos X="10" Y="36"/>
+        <EditorIndex Value="11"/>
+        <CursorPos X="35" Y="20"/>
         <UsageCount Value="1394"/>
+        <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="utils/inifunc.pas"/>
@@ -55,7 +56,7 @@
       <Unit6>
         <Filename Value="utils/log.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="12"/>
         <TopLine Value="197"/>
         <CursorPos X="84" Y="212"/>
         <UsageCount Value="1394"/>
@@ -82,16 +83,16 @@
       <Unit9>
         <Filename Value="utils/strfunc.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="12"/>
-        <CursorPos X="14" Y="4"/>
+        <EditorIndex Value="14"/>
+        <TopLine Value="275"/>
+        <CursorPos X="3" Y="297"/>
         <UsageCount Value="1394"/>
         <Loaded Value="True"/>
       </Unit9>
       <Unit10>
         <Filename Value="utils/sysfunc.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="13"/>
         <TopLine Value="88"/>
         <CursorPos X="10" Y="109"/>
         <UsageCount Value="1394"/>
@@ -108,7 +109,8 @@
         <Filename Value="engine.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="6"/>
-        <CursorPos X="16" Y="4"/>
+        <TopLine Value="276"/>
+        <CursorPos Y="296"/>
         <UsageCount Value="1394"/>
         <Loaded Value="True"/>
       </Unit12>
@@ -116,8 +118,8 @@
         <Filename Value="obj_proto.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="7"/>
-        <TopLine Value="5"/>
-        <CursorPos X="3" Y="20"/>
+        <TopLine Value="441"/>
+        <CursorPos X="28" Y="456"/>
         <UsageCount Value="1394"/>
         <Loaded Value="True"/>
       </Unit13>
@@ -125,8 +127,7 @@
         <Filename Value="data_ctrl/reg_data_ctrl.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="9"/>
-        <TopLine Value="63"/>
-        <CursorPos X="10" Y="35"/>
+        <CursorPos Y="83"/>
         <UsageCount Value="1394"/>
         <Loaded Value="True"/>
       </Unit14>
@@ -134,8 +135,8 @@
         <Filename Value="data_ctrl/opc_da_node.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="5"/>
-        <TopLine Value="223"/>
-        <CursorPos X="11" Y="243"/>
+        <TopLine Value="140"/>
+        <CursorPos Y="158"/>
         <UsageCount Value="1394"/>
         <Loaded Value="True"/>
       </Unit15>
@@ -233,16 +234,16 @@
         <Filename Value="data_ctrl/text_file_dest.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="3"/>
-        <TopLine Value="229"/>
-        <CursorPos X="7" Y="247"/>
+        <TopLine Value="29"/>
+        <CursorPos Y="126"/>
         <UsageCount Value="1378"/>
         <Loaded Value="True"/>
       </Unit26>
       <Unit27>
         <Filename Value="utils/execfunc.pas"/>
         <IsPartOfProject Value="True"/>
-        <TopLine Value="39"/>
-        <CursorPos X="18" Y="76"/>
+        <TopLine Value="121"/>
+        <CursorPos X="10" Y="49"/>
         <UsageCount Value="1275"/>
         <Loaded Value="True"/>
       </Unit27>
@@ -251,28 +252,28 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="232"/>
         <CursorPos X="27" Y="255"/>
-        <UsageCount Value="625"/>
+        <UsageCount Value="624"/>
       </Unit28>
       <Unit29>
         <Filename Value="../../lazarus/components/PascalScript/Source/uPSCompiler.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="13490"/>
         <CursorPos Y="13517"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="3"/>
       </Unit29>
       <Unit30>
         <Filename Value="../../lazarus/components/PascalScript/Source/uPSUtils.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="54"/>
         <CursorPos X="3" Y="94"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="3"/>
       </Unit30>
       <Unit31>
         <Filename Value="../../lazarus/fpc/3.2.0/source/rtl/objpas/sysutils/syshelph.inc"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="198"/>
         <CursorPos X="14" Y="171"/>
-        <UsageCount Value="4"/>
+        <UsageCount Value="3"/>
       </Unit31>
       <Unit32>
         <Filename Value="../brookfreepascal/plugins/jtemplate/src/jtemplate.pas"/>
@@ -280,121 +281,170 @@
         <EditorIndex Value="4"/>
         <TopLine Value="32"/>
         <CursorPos X="26" Y="236"/>
-        <UsageCount Value="11"/>
+        <UsageCount Value="16"/>
         <Loaded Value="True"/>
       </Unit32>
+      <Unit33>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="10"/>
+        <TopLine Value="139"/>
+        <CursorPos X="53" Y="167"/>
+        <UsageCount Value="30"/>
+        <Loaded Value="True"/>
+      </Unit33>
+      <Unit34>
+        <Filename Value="data_ctrl/find_filenames_src.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="15"/>
+        <TopLine Value="98"/>
+        <CursorPos X="32" Y="115"/>
+        <UsageCount Value="30"/>
+        <Loaded Value="True"/>
+      </Unit34>
     </Units>
-    <JumpHistory Count="25" HistoryIndex="24">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="data_ctrl/opc_da_node.pas"/>
-        <Caret Line="366" Column="32" TopLine="342"/>
+        <Filename Value="utils/dictionary.pas"/>
+        <Caret Line="451" TopLine="431"/>
       </Position1>
       <Position2>
-        <Filename Value="engine.pas"/>
-        <Caret Column="3"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="136" TopLine="122"/>
       </Position2>
       <Position3>
-        <Filename Value="engine.pas"/>
-        <Caret Line="30" Column="43" TopLine="6"/>
+        <Filename Value="utils/dictionary.pas"/>
+        <Caret Line="445" TopLine="431"/>
       </Position3>
       <Position4>
-        <Filename Value="engine.pas"/>
-        <Caret Line="189" Column="41" TopLine="165"/>
+        <Filename Value="utils/dictionary.pas"/>
+        <Caret Line="446" TopLine="431"/>
       </Position4>
       <Position5>
-        <Filename Value="engine.pas"/>
-        <Caret Line="198" Column="27" TopLine="193"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="100" TopLine="71"/>
       </Position5>
       <Position6>
-        <Filename Value="engine.pas"/>
-        <Caret Line="189" Column="48" TopLine="174"/>
+        <Filename Value="data_ctrl/find_filenames_src.pas"/>
+        <Caret Line="113" TopLine="98"/>
       </Position6>
       <Position7>
-        <Filename Value="data_ctrl/text_file_dest.pas"/>
-        <Caret Line="77" Column="39" TopLine="64"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="136" TopLine="129"/>
       </Position7>
       <Position8>
-        <Filename Value="data_ctrl/text_file_dest.pas"/>
-        <Caret Line="117" Column="56" TopLine="94"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="133" TopLine="128"/>
       </Position8>
       <Position9>
-        <Filename Value="data_ctrl/opc_da_node.pas"/>
-        <Caret Line="49" Column="28" TopLine="40"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="134" TopLine="128"/>
       </Position9>
       <Position10>
-        <Filename Value="data_ctrl/opc_da_node.pas"/>
-        <Caret Line="190" Column="14" TopLine="166"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="135" TopLine="128"/>
       </Position10>
       <Position11>
-        <Filename Value="data_ctrl/opc_da_node.pas"/>
-        <Caret Line="196" Column="46" TopLine="172"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="137" TopLine="128"/>
       </Position11>
       <Position12>
-        <Filename Value="data_ctrl/opc_da_node.pas"/>
-        <Caret Line="211" Column="23" TopLine="187"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="138" TopLine="128"/>
       </Position12>
       <Position13>
-        <Filename Value="data_ctrl/opc_da_node.pas"/>
-        <Caret Line="243" Column="8" TopLine="219"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="139" TopLine="128"/>
       </Position13>
       <Position14>
-        <Filename Value="data_ctrl/opc_da_node.pas"/>
-        <Caret Line="245" Column="22" TopLine="221"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="140" TopLine="128"/>
       </Position14>
       <Position15>
-        <Filename Value="data_ctrl/text_file_dest.pas"/>
-        <Caret Line="106" Column="56" TopLine="87"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="143" TopLine="128"/>
       </Position15>
       <Position16>
-        <Filename Value="utils/dtfunc.pas"/>
-        <Caret Line="134" Column="20" TopLine="115"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="145" TopLine="128"/>
       </Position16>
       <Position17>
-        <Filename Value="utils/execfunc.pas"/>
-        <Caret Line="85" Column="67" TopLine="57"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="147" TopLine="128"/>
       </Position17>
       <Position18>
-        <Filename Value="data_ctrl/text_file_dest.pas"/>
-        <Caret Line="105" Column="27" TopLine="166"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="149" TopLine="128"/>
       </Position18>
       <Position19>
-        <Filename Value="data_ctrl/text_file_dest.pas"/>
-        <Caret Line="58" Column="14" TopLine="199"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="151" TopLine="128"/>
       </Position19>
       <Position20>
-        <Filename Value="data_ctrl/text_file_dest.pas"/>
-        <Caret Line="66" Column="3" TopLine="226"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="170" TopLine="145"/>
       </Position20>
       <Position21>
-        <Filename Value="../brookfreepascal/plugins/jtemplate/src/jtemplate.pas"/>
-        <Caret Line="46" Column="15" TopLine="145"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="171" TopLine="145"/>
       </Position21>
       <Position22>
-        <Filename Value="../brookfreepascal/plugins/jtemplate/src/jtemplate.pas"/>
-        <Caret Line="161" Column="19" TopLine="145"/>
+        <Filename Value="utils/strfunc.pas"/>
+        <Caret Line="120" Column="78" TopLine="91"/>
       </Position22>
       <Position23>
-        <Filename Value="../brookfreepascal/plugins/jtemplate/src/jtemplate.pas"/>
-        <Caret Line="168" Column="19" TopLine="145"/>
+        <Filename Value="utils/strfunc.pas"/>
+        <Caret Line="29" Column="53" TopLine="14"/>
       </Position23>
       <Position24>
-        <Filename Value="../brookfreepascal/plugins/jtemplate/src/jtemplate.pas"/>
-        <Caret Line="194" Column="28" TopLine="180"/>
+        <Filename Value="utils/dictionary.pas"/>
+        <Caret Line="224" TopLine="211"/>
       </Position24>
       <Position25>
-        <Filename Value="data_ctrl/text_file_dest.pas"/>
-        <Caret Line="246" Column="69" TopLine="226"/>
+        <Filename Value="data_ctrl/delete_files_dst.pas"/>
+        <Caret Line="133" TopLine="109"/>
       </Position25>
+      <Position26>
+        <Filename Value="utils/dictionary.pas"/>
+        <Caret Line="224" TopLine="211"/>
+      </Position26>
+      <Position27>
+        <Filename Value="utils/dictionary.pas"/>
+        <Caret Line="226" TopLine="211"/>
+      </Position27>
+      <Position28>
+        <Filename Value="utils/dictionary.pas"/>
+        <Caret Line="227" Column="16" TopLine="210"/>
+      </Position28>
+      <Position29>
+        <Filename Value="utils/dictionary.pas"/>
+        <Caret Line="224" TopLine="210"/>
+      </Position29>
+      <Position30>
+        <Filename Value="utils/dictionary.pas"/>
+        <Caret Line="226" TopLine="210"/>
+      </Position30>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
       <Modes Count="1" ActiveMode="default">
         <Mode0 Name="default">
           <local>
-            <CommandLineParams Value="--debug --test"/>
+            <CommandLineParams Value="--debug"/>
           </local>
         </Mode0>
       </Modes>
     </RunParams>
   </ProjectSession>
+  <Debugging>
+    <BreakPoints Count="1">
+      <Item1>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="utils/dictionary.pas"/>
+        <Line Value="447"/>
+      </Item1>
+    </BreakPoints>
+  </Debugging>
 </CONFIG>

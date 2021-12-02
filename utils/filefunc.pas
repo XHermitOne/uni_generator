@@ -1,7 +1,7 @@
 {
 Функции работы с файлами.
 
-Версия: 0.0.2.1
+Версия: 0.0.3.1
 }
 unit filefunc;
 
@@ -60,6 +60,21 @@ function DateTimeToFileTime(dtFileTime: TDateTime): TFileTime;
 {$IFDEF windows}
 function FileTimeToDateTime(const ftFileTime: TFileTime): TDateTime;
 {$ENDIF}
+
+{
+Удаление файла
+@param sFileName: Полное имя удаляемого файла.
+@return: Результат удаления True/False.
+}
+function DelFile(sFileName: AnsiString): Boolean;
+
+{
+Получить дату-время создания файла.
+@param sFileName: Полное имя файла.
+@return: Дата-время создания файла.
+}
+function GetCreateFileDateTime(sFileName: AnsiString): TDateTime;
+
 
 implementation
 
@@ -274,6 +289,54 @@ begin
   Result := Result + FileTimeBase;
 end;
 {$ENDIF}
+
+{
+Удаление файла
+@param sFileName: Полное имя удаляемого файла.
+@return: Результат удаления True/False.
+}
+function DelFile(sFileName: AnsiString): Boolean;
+begin
+  try
+    sFileName := NormalPathFileName(sFileName);
+    if not FileExists(sFileName) then
+    begin
+      log.WarningMsgFmt('Удаление. Файл <%s> не найден', [sFileName]);
+      Result := False;
+      Exit;
+    end;
+    log.InfoMsgFmt('Удаление файла <%s>', [sFileName]);
+    Result := DeleteFile(sFileName);
+  except
+    log.FatalMsgFmt('Ошибка удаления файла <%s>', [sFileName]);
+    Result := False;
+  end;
+end;
+
+{
+Получить дату-время создания файла.
+@param sFileName: Полное имя файла.
+@return: Дата-время создания файла.
+}
+function GetCreateFileDateTime(sFileName: AnsiString): TDateTime;
+var
+  search_record: TSearchRec;
+  UTCTime, LocalTime: TSystemTime;
+  find_result: Boolean;
+
+begin
+  find_result := FindFirst(sFileName, faArchive, search_record) = 0;
+  if find_result then
+  begin
+    SysUtils.FindClose(search_record);
+    find_result := FileTimeToSystemTime(@search_record.FindData.ftCreationTime, @UTCTime) and
+      SystemTimeToTzSpecificLocalTime(nil, @UTCTime, @LocalTime);
+  end;
+  if find_result then
+    Result := SystemTimeToDateTime(LocalTime)
+  else
+    Result := 0;
+end;
 
 end.
 

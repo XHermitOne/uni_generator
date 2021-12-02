@@ -54,7 +54,8 @@ implementation
 uses
   log,
   strfunc,
-  dtfunc;
+  dtfunc,
+  filefunc;
 
 constructor TICPascalScript.Create(AOwner: TComponent);
 begin
@@ -85,6 +86,9 @@ begin
                      'function GetNowFormat(sDateTimeFmt: String): String;');
   Sender.AddFunction(@dtfunc.GetTodayFormat,
                      'function GetTodayFormat(sDateTimeFmt: String): String;');
+  //   Функции работы с файлами
+  Sender.AddFunction(@filefunc.GetHomeDir,
+                     'function GetHomeDir(): String;');
 
   //Sender.AddFunction(@log.ServiceMsg,
   //                   'procedure ServiceMsg(sMsg: AnsiString; bForcePrint: Boolean = False; bForceLog: Boolean = False);');

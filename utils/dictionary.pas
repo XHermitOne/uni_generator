@@ -174,12 +174,15 @@ type
       }
       function SetStrList(sKey: AnsiString; slValue: TStringList): Boolean;
 
+  published
+    property Name: AnsiString read FName;
   end;
 
 
 implementation
 
 uses
+  strfunc,
   log;
   //memfunc;
 
@@ -218,11 +221,13 @@ end;
 
 destructor TObjStringList.Destroy;
 begin
-  if FValue <> nil then
-  begin
-    FValue.Destroy;
-    FValue := nil;
-  end;
+  //if FValue <> nil then
+  //begin
+  //  //FValue.Clear;
+  //  FValue.Free;
+  //  FValue := nil;
+  //end;
+
   // ВНИМАНИЕ! Нельзя использовать функции Free.
   // Если объект создается при помощи Create, то удаляться из
   // памяти должен с помощью Dуstroy
@@ -418,12 +423,41 @@ end;
 { Получить строку из словаря }
 function TStrDictionary.GetStrValue(sKey: AnsiString): AnsiString;
 var
-  obj: TObjString;
+  obj: TObject;
+  obj_string: TObjString;
+  obj_datetime: TObjDateTime;
+  obj_stringlist: TObjStringList;
+  i: Integer;
 begin
   Result := '';
-  obj := GetByName(sKey) As TObjString;
+  obj := GetByName(sKey); // As TObjString;
   if obj <> nil then
-    Result := obj.Value;
+    if obj.ClassName = 'TObjString' then
+    begin
+      obj_string := obj As TObjString;
+      Result := obj_string.Value;
+    end
+    else if obj.ClassName = 'TObjDateTime' then
+    begin
+      obj_datetime := obj As TObjDateTime;
+      Result := DateTimeToStr(obj_datetime.Value);
+    end
+    else if obj.ClassName = 'TObjStringList' then
+    begin
+      obj_stringlist := obj As TObjStringList;
+      if obj_stringlist.Value <> nil then
+      begin
+        WriteLn(obj_stringlist.Value[0]);
+        //for i := 0 to obj_stringlist.Value.Count - 1 do
+        //  WriteLn(obj_stringlist.Value[i]);
+        Result := strfunc.ConvertStrListToString(obj_stringlist.Value);
+      end
+      else
+      begin
+        log.WarningMsgFmt('Пустой список. Словарь <%s>. Ключ <%s>', [Name, sKey]);
+        Result := '';
+      end;
+    end;
 end;
 
 {

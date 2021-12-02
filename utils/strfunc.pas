@@ -1,7 +1,7 @@
 {
 Функции работы со строками
 
-Версия: 0.0.8.1
+Версия: 0.0.8.2
 }
 unit strfunc;
 
@@ -18,13 +18,15 @@ uses
     dictionary,
     LConvEncoding;
 
+const
+  DELIMETER: Char = ',';
 {
 Разбивает строку с разделителями на части и возвращает массив частей
 @param sString Строка
 @param cDelim Символ разделителя
 @return Массив строк
 }
-function SplitStr(sString: String; cDelim: Char): TArrayOfString;
+function SplitStr(sString: String; cDelim: Char = ','): TArrayOfString;
 
 {
 Объединение массива строк в одну строку
@@ -32,8 +34,8 @@ function SplitStr(sString: String; cDelim: Char): TArrayOfString;
 @param cDelim Символ разделителя
 @return Объединенная строка
 }
-function JoinStr(StringArray : Array Of String; cDelim : Char): AnsiString;
-function JoinStr(StringArray: Array Of String; sDelim: AnsiString): AnsiString;
+function JoinStr(StringArray : Array Of String; cDelim : Char = ','): AnsiString;
+function JoinStr(StringArray: Array Of String; sDelim: AnsiString = ','): AnsiString;
 
 {
 Удалить обрамление кавычками одинарными и двойными из строки
@@ -247,7 +249,7 @@ begin
     sString := Copy(sString, 2, Length(sString) - 1);
   if AnsiEndsStr(']', sString) then
     sString := Copy(sString, 1, Length(sString) - 1);
-  result_list := SplitStr(sString, ',');
+  result_list := SplitStr(sString, DELIMETER);
   for i := 0 to Length(result_list) - 1 do
   begin
     result_list[i] := StripStr(result_list[i], ' ');
@@ -291,7 +293,8 @@ end;
 function ConvertStrListToString(StrList: TStringList): AnsiString;
 begin
   // ExtractStrings([','], [' '], PChar(result), StrList);
-  Result := '[' + Trim(StrList.Text) + ']';
+  StrList.Delimiter := DELIMETER;
+  Result := '[' + Trim(StrList.DelimitedText) + ']';
 end;
 
 { Проверка есть ли строка в списке строк }

@@ -439,6 +439,7 @@ var
   source_name, tag_name: AnsiString;
   link:  TArrayOfString;
   engine: TICEngineProto;
+  find_obj: TICObjectProto;
 
 begin
   value := ALink;
@@ -451,9 +452,22 @@ begin
   source_name := link[0];
   tag_name := link[1];
   engine := GetParent() As TICEngineProto;
-  value := engine.FindSource(source_name).State.GetStrValue(tag_name);
-  log.DebugMsgFmt('Получено значение <%s> по ссылке <%s.%s>', [value, source_name, tag_name]);
-  Result := value;
+  find_obj := engine.FindSource(source_name);
+  if find_obj.State.HasKey(tag_name) then
+  begin
+    value := find_obj.State.GetStrValue(tag_name);
+    log.DebugMsgFmt('Состояние объекта [%s]. Получено значение <%s> по ссылке <%s.%s>', [find_obj.Name, value, source_name, tag_name]);
+    Result := value;
+    Exit;
+  end;
+  if find_obj.Properties.HasKey(tag_name) then
+  begin
+    value := find_obj.Properties.GetStrValue(tag_name);
+    log.DebugMsgFmt('Свойство объекта [%s]. Получено значение <%s> по ссылке <%s.%s>', [find_obj.Name, value, source_name, tag_name]);
+    Result := value;
+    Exit;
+  end;
+  Result := '';
 end;
 
 end.
